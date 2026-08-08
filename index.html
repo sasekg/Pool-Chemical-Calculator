@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1">
+  <title>Poolside — Chemical Calculator</title>
+  <meta name="description"
+        content="Calculate pool chemical doses from your current and target water levels.">
+  <style>
+    :root {
+      --rootpdx-blue: #1683ff;
+      --rootpdx-black: #030609;
+      --rootpdx-dim: #0c61bd;
+
+      color: var(--rootpdx-blue);
+      background-color: var(--rootpdx-black);
+      font-family:
+        ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      color-scheme: dark;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      background: var(--rootpdx-black);
+      color: var(--rootpdx-blue);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .shell {
+      width: min(477px, calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    .workspace {
+      display: flex;
+      /* grid-template-columns: minmax(0, 1.55fr) minmax(310px, .85fr); */
+      gap: 24px;
+      align-items: start;
+    }
+
+    .volume-wrap {
+      padding: 22px 28px;
+    }
+
+    .volume-row {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 7px;
+      /* color: #36535e; */
+      font-size: 12px;
+      font-weight: 750;
+      letter-spacing: .02em;
+    }
+
+    .volume-control {
+      position: relative;
+      width: min(180px, 100%);
+    }
+
+    .volume-control input {
+      padding-right: 78px;
+    }
+
+    .suffix {
+      position: absolute;
+      top: 50%;
+      right: 14px;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      pointer-events: none;
+    }
+
+    input {
+      width: 100%;
+      min-height: 44px;
+      padding: 5px 5px;
+      border: 1px solid;
+      outline: none;
+      color: var(--rootpdx-blue);
+      background: var(--rootpdx-black);
+      font-weight: 650;
+    }
+
+    input::-webkit-inner-spin-button {
+      opacity: .45;
+    }
+
+    .metric-head,
+    .metric-row {
+      display: grid;
+      grid-template-columns: minmax(135px, 1.25fr) repeat(4, minmax(86px, .8fr));
+      gap: 12px;
+      align-items: center;
+    }
+
+    .metric-head {
+      padding: 15px 28px 9px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .metric-row {
+      padding: 13px 28px;
+    }
+
+    .metric-name {
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .metric-name small {
+      display: block;
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 550;
+    }
+
+    .compact-field {
+      position: relative;
+    }
+
+    .compact-field input {
+      min-height: 41px;
+      padding-right: 36px;
+    }
+
+    .compact-field .suffix {
+      right: 10px;
+      font-size: 10px;
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      padding: 20px 28px 26px;
+    }
+
+    .reset {
+      border: 0;
+      background: transparent;
+      color: var(--rootpdx-dim);
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .reset:hover {
+      text-decoration: underline;
+    }
+
+    .dose {
+      text-align: right;
+      font-size: 17px;
+      font-weight: 850;
+      letter-spacing: -.02em;
+    }
+
+    .dose small {
+      display: block;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 650;
+      letter-spacing: 0;
+    }
+
+    .summary {
+      padding: 0px 24px;
+      /* color: #42606b; */
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .panel {
+      width: 100%;
+    }
+
+    @media (max-width: 830px) {
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+
+      .results {
+        position: static;
+      }
+    }
+
+    @media (max-width: 590px) {
+      .shell {
+        width: min(100% - 24px, 1180px);
+      }
+
+      .panel-head,
+      .volume-wrap,
+      .metric-row,
+      .metric-head {
+        padding-left: 18px;
+        padding-right: 18px;
+      }
+
+      .volume-row {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .volume-control {
+        width: 100%;
+      }
+
+      .metric-head {
+        display: none;
+      }
+
+      .metric-row {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+
+      .metric-name {
+        grid-column: 1 / -1;
+        margin: 2px 0 2px;
+      }
+
+      .compact-field::before {
+        display: block;
+        margin-bottom: 5px;
+        color: var(--muted);
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+        content: attr(data-label);
+      }
+
+      .compact-field input {
+        padding: 8px;
+        min-height: 40px;
+      }
+
+      .compact-field .suffix {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="workspace"
+             aria-label="Pool chemical calculator">
+      <form class="panel"
+            id="calculator">
+        <div class="volume-wrap">
+          <div class="volume-row">
+            <div><label for="volume">POOL VOLUME</label>
+              <div style="color:var(--muted);font-size:12px">Used to scale every dose</div>
+            </div>
+            <div class="volume-control"><input id="volume"
+                     type="number"
+                     min="1"
+                     step="100"
+                     value="15000"
+                     required><span class="suffix">GALLONS</span></div>
+          </div>
+        </div>
+        <div class="metric-head"><span>Measurement</span><span>Current</span><span>Target</span><span>Dose / step*</span><span>Add</span></div>
+        <div id="metricRows"></div>
+        <div class="form-actions"><button class="reset"
+                  type="button"
+                  id="resetButton">Reset example values</button></div>
+      </form>
+    </section>
+    <div class="summary">
+      <strong>How dosing works</strong>
+      <br>Enter the chemical mass needed per 10,000 gallons for one step: 0.1 for pH or 10 ppm for every other reading.
+    </div>
+  </main>
+
+  <script>
+    const metrics = [
+      { id: 'ph', name: 'pH', unit: 'pH', step: .1, stepLabel: '0.1 pH', current: 7.2, target: 7.5, dose: 8, icon: 'pH', result: 0 },
+      { id: 'chlorine', name: 'Free chlorine', unit: 'ppm', step: 10, stepLabel: '10 ppm', current: 2, target: 4, dose: 21, icon: 'Cl', result: 0 },
+      { id: 'alkalinity', name: 'Total alkalinity', unit: 'ppm', step: 10, stepLabel: '10 ppm', current: 70, target: 90, dose: 24, icon: 'TA', result: 0 },
+      { id: 'borate', name: 'Borate', unit: 'ppm', step: 10, stepLabel: '10 ppm', current: 30, target: 40, dose: 52, icon: 'B', result: 0 },
+      { id: 'calcium', name: 'Calcium hardness', unit: 'ppm', step: 10, stepLabel: '10 ppm', current: 180, target: 250, dose: 20, icon: 'Ca', result: 0 },
+      { id: 'cyanuric', name: 'Cyanuric acid', unit: 'ppm', step: 10, stepLabel: '10 ppm', current: 30, target: 40, dose: 13, icon: 'Cy', result: 0 }
+    ];
+
+    const rows = document.querySelector('#metricRows');
+    const results = document.querySelector('#resultList');
+
+    function field(metric, kind, value, suffix, label, step = 'any') {
+      return `<div class="compact-field" data-label="${label}"><input aria-label="${metric.name} ${label.toLowerCase()}" id="${metric.id}-${kind}" type="number" min="0" step="${step}" value="${value}"><span class="suffix">${suffix}</span></div>`;
+    }
+
+    metrics.forEach(metric => {
+      rows.insertAdjacentHTML('beforeend', `<div class="metric-row">
+        <div class="metric-name">${metric.name}<small>${metric.id === 'ph' ? '+/-' : ' ppm'}</small></div>
+        ${field(metric, 'current', metric.current, metric.unit, 'Current')}
+        ${field(metric, 'target', metric.target, metric.unit, 'Target')}
+        ${field(metric, 'dose', metric.dose, 'OZ', 'Oz / step', '.1')}
+        <div class="compact-field"><span id="${metric.id}-result"></span></div>
+      </div>`);
+    });
+
+    function formatOunces(ounces) {
+      if (!Number.isFinite(ounces) || ounces < 0) return '—';
+      if (ounces === 0) return '0 oz';
+      if (ounces >= 65) {
+        const pounds = ounces / 16;
+        return `${pounds.toLocaleString(undefined, { maximumFractionDigits: 2 })} lb`;
+      }
+      return `${ounces.toLocaleString(undefined, { maximumFractionDigits: 1 })} oz`;
+    }
+
+    function calculate() {
+      const volume = Number(document.querySelector('#volume').value);
+
+      metrics.forEach(metric => {
+        const current = Number(document.querySelector(`#${metric.id}-current`).value);
+        const target = Number(document.querySelector(`#${metric.id}-target`).value);
+        const dosePerStep = Number(document.querySelector(`#${metric.id}-dose`).value);
+        const valid = [volume, current, target, dosePerStep].every(Number.isFinite) && volume > 0 && dosePerStep >= 0;
+        const difference = target - current;
+        const ounces = valid ? Math.abs(difference) / metric.step * dosePerStep * (volume / 10000) : NaN;
+        const balanced = valid && Math.abs(difference) < metric.step / 100;
+        const direction = !valid ? 'Check the entered values' : balanced ? 'Already at target' : `${difference > 0 ? 'Raise' : 'Lower'} by ${Math.abs(difference).toLocaleString(undefined, { maximumFractionDigits: 2 })} ${metric.unit}`;
+
+        const result = document.querySelector(`#${metric.id}-result`);
+        result.innerHTML = formatOunces(ounces);
+      });
+    }
+
+    document.querySelector('#calculator').addEventListener('input', calculate);
+    document.querySelector('#resetButton').addEventListener('click', () => {
+      document.querySelector('#volume').value = 15000;
+      metrics.forEach(metric => {
+        document.querySelector(`#${metric.id}-current`).value = metric.current;
+        document.querySelector(`#${metric.id}-target`).value = metric.target;
+        document.querySelector(`#${metric.id}-dose`).value = metric.dose;
+      });
+      calculate();
+    });
+    calculate();
+  </script>
+</body>
+</html>
