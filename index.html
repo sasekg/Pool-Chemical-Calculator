@@ -99,6 +99,7 @@
       color: var(--rootpdx-blue);
       background: var(--rootpdx-black);
       font-weight: 650;
+      text-align: right;
     }
 
     input::-webkit-inner-spin-button {
@@ -141,6 +142,7 @@
 
     .compact-field {
       position: relative;
+      text-align: right;
     }
 
     .compact-field input {
@@ -281,7 +283,7 @@
                      type="number"
                      min="1"
                      step="100"
-                     value="15000"
+                     value="26000"
                      required><span class="suffix">GALLONS</span></div>
           </div>
         </div>
@@ -289,7 +291,7 @@
         <div id="metricRows"></div>
         <div class="form-actions"><button class="reset"
                   type="button"
-                  id="resetButton">Reset example values</button></div>
+                  id="resetButton">Reset</button></div>
       </form>
     </section>
     <div class="summary">
@@ -300,11 +302,11 @@
 
   <script>
     const metrics = [
-      { id: 'ph', name: 'pH', unit: 'pH', step: .1, stepLabel: '0.1 pH', current: 7.2, target: 7.5, dose: 8, icon: 'pH', result: 0 },
-      { id: 'chlorine', name: 'Free chlorine', unit: 'ppm', step: 10, stepLabel: '10 ppm', current: 2, target: 4, dose: 21, icon: 'Cl', result: 0 },
-      { id: 'alkalinity', name: 'Total alkalinity', unit: 'ppm', step: 10, stepLabel: '10 ppm', current: 70, target: 90, dose: 24, icon: 'TA', result: 0 },
-      { id: 'borate', name: 'Borate', unit: 'ppm', step: 10, stepLabel: '10 ppm', current: 30, target: 40, dose: 52, icon: 'B', result: 0 },
-      { id: 'calcium', name: 'Calcium hardness', unit: 'ppm', step: 10, stepLabel: '10 ppm', current: 180, target: 250, dose: 20, icon: 'Ca', result: 0 },
+      { id: 'ph', name: 'Muriatic acid', unit: 'pH', step: .1, stepLabel: '0.1 pH', current: 7.2, target: 7.5, dose: 8, icon: 'pH', result: 0 },
+      { id: 'chlorine', name: 'Free chlorine', unit: 'ppm', step: 10, stepLabel: '10 ppm', current: 2, target: 3, dose: 21, icon: 'Cl', result: 0 },
+      { id: 'alkalinity', name: 'Total alkalinity', unit: 'ppm', step: 10, stepLabel: '10 ppm', current: 70, target: 110, dose: 24, icon: 'TA', result: 0 },
+      { id: 'borate', name: 'Optimizer', unit: 'ppm', step: 10, stepLabel: '10 ppm', current: 30, target: 40, dose: 64, icon: 'B', result: 0 },
+      { id: 'calcium', name: 'Calcium hardness', unit: 'ppm', step: 10, stepLabel: '10 ppm', current: 180, target: 200, dose: 20, icon: 'Ca', result: 0 },
       { id: 'cyanuric', name: 'Cyanuric acid', unit: 'ppm', step: 10, stepLabel: '10 ppm', current: 30, target: 40, dose: 13, icon: 'Cy', result: 0 }
     ];
 
@@ -317,7 +319,7 @@
 
     metrics.forEach(metric => {
       rows.insertAdjacentHTML('beforeend', `<div class="metric-row">
-        <div class="metric-name">${metric.name}<small>${metric.id === 'ph' ? '+/-' : ' ppm'}</small></div>
+        <div class="metric-name">${metric.name}<small>${metric.id === 'ph' ? 'ph down' : ' ppm'}</small></div>
         ${field(metric, 'current', metric.current, metric.unit, 'Current')}
         ${field(metric, 'target', metric.target, metric.unit, 'Target')}
         ${field(metric, 'dose', metric.dose, 'OZ', 'Oz / step', '.1')}
@@ -328,7 +330,7 @@
     function formatOunces(ounces) {
       if (!Number.isFinite(ounces) || ounces < 0) return '—';
       if (ounces === 0) return '0 oz';
-      if (ounces >= 65) {
+      if (ounces >= 64) {
         const pounds = ounces / 16;
         return `${pounds.toLocaleString(undefined, { maximumFractionDigits: 2 })} lb`;
       }
@@ -349,7 +351,19 @@
         const direction = !valid ? 'Check the entered values' : balanced ? 'Already at target' : `${difference > 0 ? 'Raise' : 'Lower'} by ${Math.abs(difference).toLocaleString(undefined, { maximumFractionDigits: 2 })} ${metric.unit}`;
 
         const result = document.querySelector(`#${metric.id}-result`);
-        result.innerHTML = formatOunces(ounces);
+
+        let resultValue = ounces;
+
+        switch (metric.id) {
+          case 'ph': {
+            if(difference >= 0) {
+              resultValue = 0;
+            }
+            break;
+          }
+        }
+        
+        result.innerHTML = formatOunces(resultValue);
       });
     }
 
