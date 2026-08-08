@@ -12,6 +12,7 @@
       --rootpdx-blue: #1683ff;
       --rootpdx-black: #030609;
       --rootpdx-dim: #0c61bd;
+      --rootpdx-trim: #4d4d4d;
 
       color: var(--rootpdx-blue);
       background-color: var(--rootpdx-black);
@@ -38,25 +39,39 @@
       font: inherit;
     }
 
+    input {
+      color: var(--rootpdx-blue);
+      background: var(--rootpdx-black);
+      border: 1px solid var(--rootpdx-trim);
+      min-height: 41px;
+    }
+
+    input[type="number"] {
+      appearance: textfield;
+    }
+
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      appearance: none;
+      margin: 0;
+    }
+
     .shell {
-      width: min(580px, calc(100% - 40px));
+      width: 525px;
       margin: 0 auto;
 
       .workspace {
         display: flex;
-        /* grid-template-columns: minmax(0, 1.55fr) minmax(310px, .85fr); */
         gap: 24px;
         align-items: start;
 
         form.panel {
-          width: 100%;
 
           .suffix {
             position: absolute;
             top: 50%;
             right: 14px;
             transform: translateY(-50%);
-            /* color: var(--muted); */
             font-size: 12px;
             font-weight: 700;
             pointer-events: none;
@@ -64,18 +79,7 @@
 
           input {
             width: 100%;
-            min-height: 44px;
-            padding: 5px 5px;
-            border: 1px solid;
-            outline: none;
-            color: var(--rootpdx-blue);
-            background: var(--rootpdx-black);
-            font-weight: 650;
             text-align: right;
-          }
-
-          input::-webkit-inner-spin-button {
-            opacity: .45;
           }
 
           .volume-wrap {
@@ -83,13 +87,9 @@
 
             .volume-row {
               display: grid;
-              grid-template-columns: 135px repeat(3, 86px) 100px;
+              grid-template-columns: 120px repeat(3, 76px) 67px;
               gap: 12px;
               align-items: center;
-              /* display: flex;
-              align-items: start;
-              justify-content: left;
-              gap: 10px; */
 
               .label-wrap {
 
@@ -108,11 +108,10 @@
 
               .volume-control {
                 position: relative;
-                /* width: min(180px, 100%); */
 
                 input {
                   width: 100%;
-                  /* padding-right: 78px; */
+                  text-align: center;
                 }
               }
             }
@@ -121,7 +120,7 @@
           .metric-head,
           .metric-row {
             display: grid;
-            grid-template-columns: 135px repeat(3, 86px) 100px;
+            grid-template-columns: 120px repeat(3, 76px) 67px;
             gap: 12px;
             align-items: center;
           }
@@ -162,15 +161,12 @@
               }
             }
 
-
-
             .compact-field {
               position: relative;
               text-align: right;
             }
 
             .compact-field input {
-              min-height: 41px;
               padding-right: 36px;
             }
 
@@ -188,7 +184,6 @@
 
             .dose small {
               display: block;
-              color: var(--muted);
               font-size: 10px;
               font-weight: 650;
               letter-spacing: 0;
@@ -199,7 +194,7 @@
 
       .form-actions {
         display: flex;
-        justify-content: flex-end;
+        justify-content: center;
         padding: 20px 28px 26px;
 
         .reset {
@@ -223,7 +218,6 @@
         font-size: 11px;
         line-height: 1.5;
       }
-
     }
 
 
@@ -276,7 +270,6 @@
       .compact-field::before {
         display: block;
         margin-bottom: 5px;
-        color: var(--muted);
         font-size: 9px;
         font-weight: 800;
         letter-spacing: .06em;
