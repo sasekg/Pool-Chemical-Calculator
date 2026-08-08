@@ -39,166 +39,193 @@
     }
 
     .shell {
-      width: min(477px, calc(100% - 40px));
+      width: min(580px, calc(100% - 40px));
       margin: 0 auto;
+
+      .workspace {
+        display: flex;
+        /* grid-template-columns: minmax(0, 1.55fr) minmax(310px, .85fr); */
+        gap: 24px;
+        align-items: start;
+
+        form.panel {
+          width: 100%;
+
+          .suffix {
+            position: absolute;
+            top: 50%;
+            right: 14px;
+            transform: translateY(-50%);
+            /* color: var(--muted); */
+            font-size: 12px;
+            font-weight: 700;
+            pointer-events: none;
+          }
+
+          input {
+            width: 100%;
+            min-height: 44px;
+            padding: 5px 5px;
+            border: 1px solid;
+            outline: none;
+            color: var(--rootpdx-blue);
+            background: var(--rootpdx-black);
+            font-weight: 650;
+            text-align: right;
+          }
+
+          input::-webkit-inner-spin-button {
+            opacity: .45;
+          }
+
+          .volume-wrap {
+            padding: 22px 28px;
+
+            .volume-row {
+              display: grid;
+              grid-template-columns: 135px repeat(3, 86px) 100px;
+              gap: 12px;
+              align-items: center;
+              /* display: flex;
+              align-items: start;
+              justify-content: left;
+              gap: 10px; */
+
+              .label-wrap {
+
+                label {
+                  font-size: 14px;
+                  font-weight: 800;
+                }
+
+                small {
+                  display: block;
+                  margin-top: 2px;
+                  font-size: 11px;
+                  font-weight: 550;
+                }
+              }
+
+              .volume-control {
+                position: relative;
+                /* width: min(180px, 100%); */
+
+                input {
+                  width: 100%;
+                  /* padding-right: 78px; */
+                }
+              }
+            }
+          }
+
+          .metric-head,
+          .metric-row {
+            display: grid;
+            grid-template-columns: 135px repeat(3, 86px) 100px;
+            gap: 12px;
+            align-items: center;
+          }
+
+          .metric-head {
+            padding: 15px 28px 9px;
+            color: var(--muted);
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+
+            span:first-child {
+              text-align: left;
+            }
+
+            span {
+              text-align: center;
+            }
+
+            span:last-child {
+              text-align: right;
+            }
+          }
+
+          .metric-row {
+            padding: 13px 28px;
+
+            .metric-name {
+              font-size: 14px;
+              font-weight: 800;
+
+              small {
+                display: block;
+                margin-top: 2px;
+                font-size: 11px;
+                font-weight: 550;
+              }
+            }
+
+
+
+            .compact-field {
+              position: relative;
+              text-align: right;
+            }
+
+            .compact-field input {
+              min-height: 41px;
+              padding-right: 36px;
+            }
+
+            .compact-field .suffix {
+              right: 10px;
+              font-size: 10px;
+            }
+
+            .dose {
+              text-align: right;
+              font-size: 17px;
+              font-weight: 850;
+              letter-spacing: -.02em;
+            }
+
+            .dose small {
+              display: block;
+              color: var(--muted);
+              font-size: 10px;
+              font-weight: 650;
+              letter-spacing: 0;
+            }
+          }
+        }
+      }
+
+      .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        padding: 20px 28px 26px;
+
+        .reset {
+          border: 0;
+          background: transparent;
+          color: var(--rootpdx-dim);
+          cursor: pointer;
+          font-size: 12px;
+          font-weight: 800;
+
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+      }
+
+
+      .summary {
+        padding: 0px 24px;
+        /* color: #42606b; */
+        font-size: 11px;
+        line-height: 1.5;
+      }
+
     }
 
-    .workspace {
-      display: flex;
-      /* grid-template-columns: minmax(0, 1.55fr) minmax(310px, .85fr); */
-      gap: 24px;
-      align-items: start;
-    }
-
-    .volume-wrap {
-      padding: 22px 28px;
-    }
-
-    .volume-row {
-      display: flex;
-      align-items: end;
-      justify-content: space-between;
-      gap: 10px;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 7px;
-      /* color: #36535e; */
-      font-size: 12px;
-      font-weight: 750;
-      letter-spacing: .02em;
-    }
-
-    .volume-control {
-      position: relative;
-      width: min(180px, 100%);
-    }
-
-    .volume-control input {
-      padding-right: 78px;
-    }
-
-    .suffix {
-      position: absolute;
-      top: 50%;
-      right: 14px;
-      transform: translateY(-50%);
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 700;
-      pointer-events: none;
-    }
-
-    input {
-      width: 100%;
-      min-height: 44px;
-      padding: 5px 5px;
-      border: 1px solid;
-      outline: none;
-      color: var(--rootpdx-blue);
-      background: var(--rootpdx-black);
-      font-weight: 650;
-      text-align: right;
-    }
-
-    input::-webkit-inner-spin-button {
-      opacity: .45;
-    }
-
-    .metric-head,
-    .metric-row {
-      display: grid;
-      grid-template-columns: minmax(135px, 1.25fr) repeat(4, minmax(86px, .8fr));
-      gap: 12px;
-      align-items: center;
-    }
-
-    .metric-head {
-      padding: 15px 28px 9px;
-      color: var(--muted);
-      font-size: 10px;
-      font-weight: 800;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-    }
-
-    .metric-row {
-      padding: 13px 28px;
-    }
-
-    .metric-name {
-      font-size: 14px;
-      font-weight: 800;
-    }
-
-    .metric-name small {
-      display: block;
-      margin-top: 2px;
-      color: var(--muted);
-      font-size: 11px;
-      font-weight: 550;
-    }
-
-    .compact-field {
-      position: relative;
-      text-align: right;
-    }
-
-    .compact-field input {
-      min-height: 41px;
-      padding-right: 36px;
-    }
-
-    .compact-field .suffix {
-      right: 10px;
-      font-size: 10px;
-    }
-
-    .form-actions {
-      display: flex;
-      justify-content: flex-end;
-      padding: 20px 28px 26px;
-    }
-
-    .reset {
-      border: 0;
-      background: transparent;
-      color: var(--rootpdx-dim);
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 800;
-    }
-
-    .reset:hover {
-      text-decoration: underline;
-    }
-
-    .dose {
-      text-align: right;
-      font-size: 17px;
-      font-weight: 850;
-      letter-spacing: -.02em;
-    }
-
-    .dose small {
-      display: block;
-      color: var(--muted);
-      font-size: 10px;
-      font-weight: 650;
-      letter-spacing: 0;
-    }
-
-    .summary {
-      padding: 0px 24px;
-      /* color: #42606b; */
-      font-size: 11px;
-      line-height: 1.5;
-    }
-
-    .panel {
-      width: 100%;
-    }
 
     @media (max-width: 830px) {
       .workspace {
@@ -276,15 +303,15 @@
             id="calculator">
         <div class="volume-wrap">
           <div class="volume-row">
-            <div><label for="volume">POOL VOLUME</label>
-              <div style="color:var(--muted);font-size:12px">Used to scale every dose</div>
+            <div class="label-wrap"><label for="volume">POOL VOLUME</label>
+              <small>gal</small>
             </div>
             <div class="volume-control"><input id="volume"
                      type="number"
-                     min="1"
-                     step="100"
+                     min="0"
+                     step="1000"
                      value="26000"
-                     required><span class="suffix">GALLONS</span></div>
+                     required></div>
           </div>
         </div>
         <div class="metric-head"><span>Measurement</span><span>Current</span><span>Target</span><span>Dose / step*</span><span>Add</span></div>
@@ -356,13 +383,13 @@
 
         switch (metric.id) {
           case 'ph': {
-            if(difference >= 0) {
+            if (difference >= 0) {
               resultValue = 0;
             }
             break;
           }
         }
-        
+
         result.innerHTML = formatOunces(resultValue);
       });
     }
