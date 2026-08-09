@@ -321,6 +321,35 @@
   </main>
 
   <script>
+
+    const OZ_PER_GALLON = 128;
+    const ONE_MILLION = 1000000;
+    function calc_oz_set_ppm(ppm_test, ppm_set, volume_gal, decimal_percent_active) {
+      const ppm_d = ppm_set - ppm_test;
+      if(ppm_d <= 0) {
+        return 0;
+      }
+      const scale_factor = 1.0 / decimal_percent_active;
+      const gal_d = ppm_d * volume_gal / ONE_MILLION;
+      const scaled_gal_d = gal_d * scale_factor;
+      const oz = scaled_gal_d * OZ_PER_GALLON;
+      return oz;
+    }
+
+
+    function calc_oz_muriatic_acid_31_set_ph_down(ph_test, ph_set, volume_gal) {
+      const oz_per_gallon_to_drop_point_1 = 6 / 10000;
+      const ph_d = ph_test - ph_set;
+      if(ph_d <= 0) {
+        return 0;
+      }
+      const oz = ph_d * volume_gal * oz_per_gallon_to_drop_point_1;
+      return oz;
+    }
+
+
+
+
     const metrics = [
       { id: 'ph', name: 'Muriatic acid', unit: 'pH', step: .1, stepLabel: '0.1 pH', current: 7.2, target: 7.5, dose: 8, icon: 'pH', result: 0 },
       { id: 'chlorine', name: 'Free chlorine', unit: 'ppm', step: 10, stepLabel: '10 ppm', current: 2, target: 3, dose: 21, icon: 'Cl', result: 0 },
@@ -366,13 +395,13 @@
         const dosePerStep = Number(document.querySelector(`#${metric.id}-dose`).value);
         const valid = [volume, current, target, dosePerStep].every(Number.isFinite) && volume > 0 && dosePerStep >= 0;
         const difference = target - current;
-        const ounces = valid ? Math.abs(difference) / metric.step * dosePerStep * (volume / 10000) : NaN;
+        //const ounces = valid ? Math.abs(difference) / metric.step * dosePerStep * (volume / 10000) : NaN;
         const balanced = valid && Math.abs(difference) < metric.step / 100;
         const direction = !valid ? 'Check the entered values' : balanced ? 'Already at target' : `${difference > 0 ? 'Raise' : 'Lower'} by ${Math.abs(difference).toLocaleString(undefined, { maximumFractionDigits: 2 })} ${metric.unit}`;
 
         const result = document.querySelector(`#${metric.id}-result`);
 
-        let resultValue = ounces;
+        let resultValue = calcOZ(current, target, volume, dosePerStep);
 
         switch (metric.id) {
           case 'ph': {
@@ -401,3 +430,8 @@
   </script>
 </body>
 </html>
+
+<!--
+
+
+-->
