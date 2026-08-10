@@ -19,6 +19,22 @@
       /* color-scheme: dark; */
     }
 
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    input[type="number"] {
+      appearance: textfield;
+    }
+
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      appearance: none;
+      margin: 0;
+    }
+
     .visually-hidden {
       position: absolute;
       width: 1px;
@@ -36,22 +52,60 @@
       justify-content: center;
 
       form {
+        input {
+          width: 100%;
+          text-align: center;
+          padding: 8px 0px 10px 0px;
+        }
+
         .row {
           display: grid;
-          grid-template-columns: 150px repeat(2, 76px) 100px;
+          grid-template-columns: 150px repeat(2, 60px) 60px;
           gap: 10px;
+          margin: 5px auto;
 
-          input {
-            text-align: right;
+
+          .field {
+            position: relative;
+
+            .unit {
+              display: block;
+              width: 100%;
+              text-align: center;
+              font-size: x-small;
+              position: absolute;
+              bottom: 3px;
+              left: 0px;
+            }
           }
 
-          &:first-child {
+          &.volume {
             margin: 20px auto;
             text-align: right;
           }
 
           &.heading {
             text-align: center;
+            align-self: center;
+          }
+
+          .row-label {
+
+            .test-name {
+              font-weight: bold;
+              position: relative;
+              top: 3px;
+            }
+
+            .chemical-name {
+              font-size: small;
+              position: relative;
+              top: -1px;
+            }
+          }
+
+          label {
+            align-self: center;
           }
 
           output {
@@ -66,7 +120,7 @@
 <body>
   <main>
     <form id="calculator">
-      <div class="row">
+      <div class="row volume">
         <span></span>
         <label for="gallons">Gallons</label>
         <input id="gallons"
@@ -85,30 +139,44 @@
       <div class="row"
            role="group"
            aria-labelledby="ta-label">
-        <div>
-          <strong id="ta-label">Total Alkalinity</strong>
-          <br>
-          <small>Sodium Bicarbonate</small>
+        <div class="row-label">
+          <span id="ta-label"
+                class="test-name">Total Alkalinity</span>
+          <span class="chemical-name">Sodium Bicarbonate</span>
         </div>
-        <label class="visually-hidden"
-               for="ta-test">Test (ppm)</label>
-        <input id="ta-test"
-               name="ta-test"
-               type="number"
-               min="0"
-               step="any"
-               required>
-        <label class="visually-hidden" for="target">Target (ppm)</label>
-        <input id="ta-target"
-               name="ta_target"
-               type="number"
-               min="0"
-               step="any"
-               required>
-        <output id="ta-result"
-                for="gallons ta-test ta-target factor"
-                aria-label="Sodium bicarbonate result"
-                aria-live="polite"></output>
+        <div class="field">
+          <label class="visually-hidden"
+                 for="ta-test">Test (ppm)</label>
+          <input id="ta-test"
+                 name="ta-test"
+                 type="number"
+                 min="0"
+                 step="any"
+                 required>
+          <span class="unit">ppm</span>
+        </div>
+        <div class="field">
+          <label class="visually-hidden"
+                 for="ta-target">Target (ppm)</label>
+          <input id="ta-target"
+                 name="ta_target"
+                 type="number"
+                 min="0"
+                 step="any"
+                 required>
+          <span class="unit">ppm</span>
+        </div>
+        <div class="field">
+          <output id="ta-result"
+                  for="gallons ta-test ta-target factor"
+                  aria-label="Sodium bicarbonate result"
+                  aria-live="polite">
+            <span id="ta-result-value"
+                  class="unit"></span>                  
+            <span id="ta-result-unit"
+                  class="unit"></span>
+          </output>
+        </div>
       </div>
     </form>
   </main>
@@ -116,36 +184,86 @@
   <script>
     const form = document.querySelector('#calculator');
     const gallons = document.querySelector('#gallons');
-    const ta_test = document.querySelector('#ta-test');
-    const ta_target = document.querySelector('#ta-target');
-    //const factor = document.querySelector('#factor');
-    const ta_result = document.querySelector('#ta-result');
 
-    //factor.value = ROOTPDX_POOL_API.effective_test_factors.sodium_bicarbonate_to_total_alkalinity;
+    function calc_us_ppm(test, target, gal, active_pct, mass_ratio) {
+      const response = ROOTPDX_POOL_API.calculate_us_product_dose_for_target_ppm.request({
+        test_ppm: Number(test),
+        target_ppm: Number(target),
+        pool_volume_us_gallons: Number(gal),
+        active_ingredient_fraction: active_pct,
+        mass_to_test_ratio: mass_ratio
+      });
 
-    function calculate() {
+      if (response.ok) {
+        return response.data.product_volume_us_fluid_ounces;
+      } else {
+        console.log(response);
+      }
+      return ROOTPDX_POOL_API.ERROR_STATUS;
+    }
+
+    function get_ta_html_elements() {
+      return {
+        test: document.querySelector('#ta-test'),
+        target: document.querySelector('#ta-target'),
+        result_value: document.querySelector('#ta-result-value'),
+        result_unit: document.querySelector('#ta-result-unit')
+      }
+    }
+
+    function calc_total_alkalinity() {
       if (!form.checkValidity()) {
-        ta_result.value = '';
+        reset_total_alkalinity_result();
+        console.log(form);
         return;
       }
 
-      const response = ROOTPDX_POOL_API.calculate_us_product_dose_for_target_ppm.request({
-        test_ppm: Number(ta_test.value),
-        target_ppm: Number(ta_target.value),
-        pool_volume_us_gallons: Number(gallons.value),
-        active_ingredient_fraction: 1,
-        mass_to_test_ratio: ROOTPDX_POOL_API.MASS_TO_TEST_RATIOS.sodium_bicarbonate_to_total_alkalinity
-      });
+      const ta_html = get_ta_html_elements();
 
-     ta_result.value = response.ok
-        ? `${response.data.product_volume_us_fluid_ounces.toLocaleString(undefined, { maximumFractionDigits: 0 })} oz`
-        : '';
+      const result = calc_us_ppm(
+        ta_html.test.value,
+        ta_html.target.value,
+        gallons.value,
+        1,
+        ROOTPDX_POOL_API.MASS_TO_TEST_RATIOS.sodium_bicarbonate_to_total_alkalinity
+      );
+
+      if (result == ROOTPDX_POOL_API.ERROR_STATUS) {
+        return;
+      }
+
+      const oz = result.toLocaleString(undefined, { maximumFractionDigits: 0 })
+
+      if (oz >= 64) {
+        const lb = Number(oz / 16).toLocaleString(undefined, { 'maximumFractionDigits': 1 });
+        ta_html.result_value.innerHTML = lb;
+        ta_html.result_unit.innerHTML = "lb";
+      } else {
+        ta_html.result_value.innerHTML = oz;
+        ta_html.result_unit.innerHTML= "oz";
+      }
+    }
+
+    function calculate() {
+      calc_total_alkalinity();
+    }
+
+    function reset_total_alkalinity_result() {
+      const ta_html = get_ta_html_elements();
+      ta_html.result_value.innerHTML = '';
+      ta_html.result_unit.innerHTML = '';      
+    }
+
+    function reset_total_alkalinity() {
+      const ta_html = get_ta_html_elements();
+      ta_html.test.value = ROOTPDX_POOL_API.FORM_INITIAL_VALUES.total_alkalinity.test_ppm;
+      ta_html.target.value = ROOTPDX_POOL_API.FORM_INITIAL_VALUES.total_alkalinity.target_ppm;
+      reset_total_alkalinity_result();
     }
 
     function reset() {
       gallons.value = 10000;
-      ta_test.value = ROOTPDX_POOL_API.FORM_INITIAL_VALUES.total_alkalinity.test_ppm;
-      ta_target.value = ROOTPDX_POOL_API.FORM_INITIAL_VALUES.total_alkalinity.target_ppm;
+      reset_total_alkalinity();
       calculate();
     }
 

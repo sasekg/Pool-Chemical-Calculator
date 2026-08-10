@@ -8,6 +8,7 @@
   const MURIATIC_ACID_US_FLUID_OUNCES_PER_10000_GALLONS_PER_POINT_1_PH = 6;
   const REFERENCE_HCL_PERCENT = 31.45;
   const REFERENCE_TOTAL_ALKALINITY_PPM = 100;
+  const ERROR_STATUS = "ERROR_STATUS";
 
   // Dimensionless reference values expressed as test ppm produced per ppm of
   // pure product. Product purity belongs in active_ingredient_fraction.
@@ -522,6 +523,7 @@
     version: '0.1.0',
     MASS_TO_TEST_RATIOS: MASS_TO_TEST_RATIOS, 
     FORM_INITIAL_VALUES: FORM_INITIAL_VALUES,
+    ERROR_STATUS: ERROR_STATUS,
     calculate_us_product_dose_for_target_ppm: createOperation(
       usRequestTemplate,
       calculateUsProductDose
