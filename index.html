@@ -323,16 +323,27 @@
   <script>
 
     const OZ_PER_GALLON = 128;
-    const ONE_MILLION = 1000000;
+    const PPM_RATIO = 1.0/1000000.0;
+
+    function calc_scaled_PPM_factor(decimal_percent) {
+      return PPM_RATIO * (1.0 / decimal_percent);
+    }
+
+    function calc_scaled_PPM_diff(test_ppm, set_ppm, decimal_percent) {
+      return Math.abs(set_ppm - test_ppm) * calc_scaled_PPM_factor(decimal_percent);
+    }
+
+    function calc_volume_diff_scalar(test_ppm, set_ppm, volume_scalar, decimal_percent) {
+      return volume_scalar * calc_scaled_PPM_diff(test_ppm, set_ppm, decimal_percent);
+    }
+
     function calc_oz_set_ppm(ppm_test, ppm_set, volume_gal, decimal_percent_active) {
       const ppm_d = ppm_set - ppm_test;
       if(ppm_d <= 0) {
         return 0;
       }
-      const scale_factor = 1.0 / decimal_percent_active;
-      const gal_d = ppm_d * volume_gal / ONE_MILLION;
-      const scaled_gal_d = gal_d * scale_factor;
-      const oz = scaled_gal_d * OZ_PER_GALLON;
+      const gal_d = calc_volume_diff_scalar(test_ppm, set_ppm, volume_gal, decimal_percent_active);
+      const oz = gal_d * OZ_PER_GALLON;
       return oz;
     }
 
@@ -346,9 +357,6 @@
       const oz = ph_d * volume_gal * oz_per_gallon_to_drop_point_1;
       return oz;
     }
-
-
-
 
     const metrics = [
       { id: 'ph', name: 'Muriatic acid', unit: 'pH', step: .1, stepLabel: '0.1 pH', current: 7.2, target: 7.5, dose: 8, icon: 'pH', result: 0 },
@@ -427,6 +435,22 @@
       calculate();
     });
     calculate();
+
+
+    const ROOTPDX_POOL_API = {
+      calc_oz_to_set_ppm: {
+        request: function (json_request) {
+
+        },
+        json_request_template: {
+          'test_ppm': 0.0,
+          'set_ppm': 0.0,
+          'pool_gallons': 0.0,
+          'decimal_percent_chem_scalar': 1.0
+        }
+      }
+    };
+
   </script>
 </body>
 </html>
