@@ -9,6 +9,22 @@
   const REFERENCE_HCL_PERCENT = 31.45;
   const REFERENCE_TOTAL_ALKALINITY_PPM = 100;
 
+  // Dimensionless reference values expressed as test ppm produced per ppm of
+  // pure product. Product purity belongs in active_ingredient_fraction.
+  const EFFECTIVE_TEST_FACTORS = Object.freeze({
+    calcium_chloride_anhydrous_to_calcium_hardness: 100.0869 / 110.98,
+    calcium_chloride_dihydrate_to_calcium_hardness: 100.0869 / 147.014,
+    chlorine_trichlor_to_free_chlorine: (3 * 70.906) / 232.41,
+    chlorine_cal_hypo_to_free_chlorine: (2 * 70.906) / 142.98,
+
+    // Empirical product reference: the current 64 oz per 10 ppm per 10,000
+    // US gallons dose convention corresponds to a factor of 0.2.
+    bioguard_optimizer_to_borate: 0.2,
+
+    // Total alkalinity is conventionally reported as equivalent CaCO3.
+    sodium_bicarbonate_to_total_alkalinity: 50.04345 / 84.0066
+  });
+
   const commonRequestTemplate = Object.freeze({
     current_test_ppm: 2,
     target_test_ppm: 3,
@@ -40,6 +56,20 @@
     total_alkalinity_ppm: 100,
     percent_hcl: 31.45,
     pool_volume_liters: 98420.706384
+  });
+
+  const usCyaDrainTimeRequestTemplate = Object.freeze({
+    test_cya: 80,
+    target_cya: 40,
+    pool_volume_us_gallons: 26000,
+    pump_flow_us_gallons_per_minute: 40
+  });
+
+  const metricCyaDrainTimeRequestTemplate = Object.freeze({
+    test_cya: 80,
+    target_cya: 40,
+    pool_volume_liters: 98420.706384,
+    pump_flow_liters_per_minute: 151.41647136
   });
 
   function errorResponse(code, message, fields) {
@@ -328,6 +358,111 @@
     };
   }
 
+  function calculateCyaDrainTime(
+    rawRequest,
+    volumeField,
+    flowField,
+    volumeToLiters,
+    flowToLitersPerMinute
+  ) {
+    const normalized = normalizeRequest(rawRequest);
+    if (!normalized.ok) return normalized;
+
+    const request = normalized.value;
+    const requiredFields = ['test_cya', 'target_cya', volumeField, flowField];
+    const missingFields = requiredFields.filter(
+      (field) => !Object.prototype.hasOwnProperty.call(request, field)
+    );
+
+    if (missingFields.length > 0) {
+      return errorResponse(
+        'MISSING_FIELDS',
+        `Missing required fields: ${missingFields.join(', ')}.`,
+        missingFields
+      );
+    }
+
+    const invalidNumberFields = requiredFields.filter(
+      (field) => typeof request[field] !== 'number' || !Number.isFinite(request[field])
+    );
+
+    if (invalidNumberFields.length > 0) {
+      return errorResponse(
+        'INVALID_NUMBERS',
+        'All request fields must be finite JSON numbers.',
+        invalidNumberFields
+      );
+    }
+
+    const outOfRangeFields = [];
+    if (request.test_cya < 0) outOfRangeFields.push('test_cya');
+    if (request.target_cya < 0) outOfRangeFields.push('target_cya');
+    if (request[volumeField] <= 0) outOfRangeFields.push(volumeField);
+    if (request[flowField] <= 0) outOfRangeFields.push(flowField);
+
+    if (outOfRangeFields.length > 0) {
+      return errorResponse(
+        'VALUE_OUT_OF_RANGE',
+        'CYA values cannot be negative; pool volume and pump flow must be positive.',
+        outOfRangeFields
+      );
+    }
+
+    const drainFraction =
+      request.test_cya > request.target_cya && request.test_cya > 0
+        ? 1 - request.target_cya / request.test_cya
+        : 0;
+    const poolVolumeLiters = volumeToLiters(request[volumeField]);
+    const drainVolumeLiters = poolVolumeLiters * drainFraction;
+    const pumpFlowLitersPerMinute = flowToLitersPerMinute(request[flowField]);
+    const drainTimeMinutes = drainVolumeLiters / pumpFlowLitersPerMinute;
+
+    return {
+      ok: true,
+      data: {
+        drain_fraction: drainFraction,
+        drain_percent: drainFraction * 100,
+        drain_volume_liters: drainVolumeLiters,
+        drain_time_minutes: drainTimeMinutes,
+        drain_time_hours: drainTimeMinutes / 60
+      }
+    };
+  }
+
+  function calculateUsCyaDrainTime(rawRequest) {
+    const response = calculateCyaDrainTime(
+      rawRequest,
+      'pool_volume_us_gallons',
+      'pump_flow_us_gallons_per_minute',
+      (gallons) => gallons * LITERS_PER_US_GALLON,
+      (gallonsPerMinute) => gallonsPerMinute * LITERS_PER_US_GALLON
+    );
+
+    if (!response.ok) return response;
+
+    return {
+      ok: true,
+      data: {
+        drain_fraction: response.data.drain_fraction,
+        drain_percent: response.data.drain_percent,
+        drain_volume_us_gallons:
+          response.data.drain_volume_liters / LITERS_PER_US_GALLON,
+        drain_time_minutes: response.data.drain_time_minutes,
+        drain_time_hours: response.data.drain_time_hours
+      }
+    };
+  }
+
+  function calculateMetricCyaDrainTime(rawRequest) {
+    return calculateCyaDrainTime(
+      rawRequest,
+      'pool_volume_liters',
+      'pump_flow_liters_per_minute',
+      (liters) => liters,
+      (litersPerMinute) => litersPerMinute
+    );
+  }
+
   function createOperation(requestTemplate, calculate) {
     return Object.freeze({
       request_template: requestTemplate,
@@ -340,6 +475,7 @@
 
   const ROOTPDX_POOL_API = Object.freeze({
     version: '0.1.0',
+    effective_test_factors: EFFECTIVE_TEST_FACTORS,
     calculate_us_product_dose_for_target_ppm: createOperation(
       usRequestTemplate,
       calculateUsProductDose
@@ -355,6 +491,14 @@
     calculate_metric_muriatic_acid_dose_for_target_ph: createOperation(
       metricMuriaticAcidRequestTemplate,
       calculateMetricMuriaticAcidDose
+    ),
+    calculate_us_drain_time_for_target_cya: createOperation(
+      usCyaDrainTimeRequestTemplate,
+      calculateUsCyaDrainTime
+    ),
+    calculate_metric_drain_time_for_target_cya: createOperation(
+      metricCyaDrainTimeRequestTemplate,
+      calculateMetricCyaDrainTime
     )
   });
 
