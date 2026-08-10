@@ -11,7 +11,7 @@
 
   // Dimensionless reference values expressed as test ppm produced per ppm of
   // pure product. Product purity belongs in active_ingredient_fraction.
-  const EFFECTIVE_TEST_FACTORS = Object.freeze({
+  const MASS_TO_TEST_RATIOS = Object.freeze({
     calcium_chloride_anhydrous_to_calcium_hardness: 100.0869 / 110.98,
     calcium_chloride_dihydrate_to_calcium_hardness: 100.0869 / 147.014,
     chlorine_trichlor_to_free_chlorine: (3 * 70.906) / 232.41,
@@ -26,10 +26,10 @@
   });
 
   const commonRequestTemplate = Object.freeze({
-    current_test_ppm: 2,
-    target_test_ppm: 3,
+    test_ppm: 2,
+    target_ppm: 3,
     active_ingredient_fraction: 0.3145,
-    test_ppm_per_active_ingredient_ppm: 0.2
+    mass_to_test_ratio: 0.2
   });
 
   const usRequestTemplate = Object.freeze({
@@ -130,8 +130,8 @@
 
     const outOfRangeFields = [];
 
-    if (request.current_test_ppm < 0) outOfRangeFields.push('current_test_ppm');
-    if (request.target_test_ppm < 0) outOfRangeFields.push('target_test_ppm');
+    if (request.test_ppm < 0) outOfRangeFields.push('test_ppm');
+    if (request.target_ppm < 0) outOfRangeFields.push('target_ppm');
     if (request[volumeField] <= 0) outOfRangeFields.push(volumeField);
     if (
       request.active_ingredient_fraction <= 0 ||
@@ -139,8 +139,8 @@
     ) {
       outOfRangeFields.push('active_ingredient_fraction');
     }
-    if (request.test_ppm_per_active_ingredient_ppm <= 0) {
-      outOfRangeFields.push('test_ppm_per_active_ingredient_ppm');
+    if (request.mass_to_test_ratio <= 0) {
+      outOfRangeFields.push('mass_to_test_ratio');
     }
 
     if (outOfRangeFields.length > 0) {
@@ -163,12 +163,12 @@
     if (!validation.ok) return validation;
 
     const desiredTestChangePpm = Math.max(
-      request.target_test_ppm - request.current_test_ppm,
+      request.target_ppm - request.test_ppm,
       0
     );
     const effectiveTestResponse =
       request.active_ingredient_fraction *
-      request.test_ppm_per_active_ingredient_ppm;
+      request.mass_to_test_ratio;
     const requiredProductPpm = desiredTestChangePpm / effectiveTestResponse;
     const poolVolumeLiters = volumeToLiters(request[volumeField]);
     const productVolumeLiters =
@@ -475,7 +475,7 @@
 
   const ROOTPDX_POOL_API = Object.freeze({
     version: '0.1.0',
-    effective_test_factors: EFFECTIVE_TEST_FACTORS,
+    MASS_TO_TEST_RATIOS: MASS_TO_TEST_RATIOS,
     calculate_us_product_dose_for_target_ppm: createOperation(
       usRequestTemplate,
       calculateUsProductDose
@@ -507,4 +507,50 @@
   }
 
   globalScope.ROOTPDX_POOL_API = ROOTPDX_POOL_API;
+
+
+  const FORM_INITIAL_VALUES = Object.freeze({
+    volume: 10000,
+    total_alkalinity: {
+      test_ppm: 90,
+      target_ppm: REFERENCE_TOTAL_ALKALINITY_PPM,
+      active_ingredient_fraction: 1,
+      mass_to_test_ratio: MASS_TO_TEST_RATIOS.sodium_bicarbonate_to_total_alkalinity
+    },
+
+    ph: {
+      test_ph: 7.8,
+      target_ph: 7.5,
+      total_alkalinity_ppm: REFERENCE_TOTAL_ALKALINITY_PPM,
+      percent_hcl: 31.45,
+    },
+
+    free_chlorine: {
+      test: 0.5,
+      target: 2.0,
+      active_ingredient_fraction: 1,
+      mass_to_test_ratio: MASS_TO_TEST_RATIOS.chlorine_cal_hypo_to_free_chlorine
+    },
+
+    calcium_hardness: {
+      test_ppm: 200,
+      target_ppm: 250,
+      active_ingredient_fraction: .94,
+      mass_to_test_ratio: MASS_TO_TEST_RATIOS.calcium_chloride_dihydrate_to_calcium_hardness
+    },
+
+    cyanuric_acid: {
+      test_cya: 80,
+      target_cya: 40,
+      pool_volume_us_gallons: 26000,
+      pump_flow_us_gallons_per_minute: 40
+    },
+
+    borate: {
+      test_ppm: 10,
+      target_ppm: 50,
+      active_ingredient_fraction: 1,
+      mass_to_test_ratio: MASS_TO_TEST_RATIOS.bioguard_optimizer_to_borate
+    }
+  })
 })(typeof globalThis !== 'undefined' ? globalThis : window);
