@@ -473,42 +473,6 @@
     });
   }
 
-  const ROOTPDX_POOL_API = Object.freeze({
-    version: '0.1.0',
-    MASS_TO_TEST_RATIOS: MASS_TO_TEST_RATIOS,
-    calculate_us_product_dose_for_target_ppm: createOperation(
-      usRequestTemplate,
-      calculateUsProductDose
-    ),
-    calculate_metric_product_dose_for_target_ppm: createOperation(
-      metricRequestTemplate,
-      calculateMetricProductDose
-    ),
-    calculate_us_muriatic_acid_dose_for_target_ph: createOperation(
-      usMuriaticAcidRequestTemplate,
-      calculateUsMuriaticAcidDose
-    ),
-    calculate_metric_muriatic_acid_dose_for_target_ph: createOperation(
-      metricMuriaticAcidRequestTemplate,
-      calculateMetricMuriaticAcidDose
-    ),
-    calculate_us_drain_time_for_target_cya: createOperation(
-      usCyaDrainTimeRequestTemplate,
-      calculateUsCyaDrainTime
-    ),
-    calculate_metric_drain_time_for_target_cya: createOperation(
-      metricCyaDrainTimeRequestTemplate,
-      calculateMetricCyaDrainTime
-    )
-  });
-
-  if (typeof module !== 'undefined' && module.exports) {
-    module.exports = ROOTPDX_POOL_API;
-  }
-
-  globalScope.ROOTPDX_POOL_API = ROOTPDX_POOL_API;
-
-
   const FORM_INITIAL_VALUES = Object.freeze({
     volume: 10000,
     total_alkalinity: {
@@ -553,4 +517,42 @@
       mass_to_test_ratio: MASS_TO_TEST_RATIOS.bioguard_optimizer_to_borate
     }
   })
+
+  const ROOTPDX_POOL_API = Object.freeze({
+    version: '0.1.0',
+    MASS_TO_TEST_RATIOS: MASS_TO_TEST_RATIOS, 
+    FORM_INITIAL_VALUES: FORM_INITIAL_VALUES,
+    calculate_us_product_dose_for_target_ppm: createOperation(
+      usRequestTemplate,
+      calculateUsProductDose
+    ),
+    calculate_metric_product_dose_for_target_ppm: createOperation(
+      metricRequestTemplate,
+      calculateMetricProductDose
+    ),
+    calculate_us_muriatic_acid_dose_for_target_ph: createOperation(
+      usMuriaticAcidRequestTemplate,
+      calculateUsMuriaticAcidDose
+    ),
+    calculate_metric_muriatic_acid_dose_for_target_ph: createOperation(
+      metricMuriaticAcidRequestTemplate,
+      calculateMetricMuriaticAcidDose
+    ),
+    calculate_us_drain_time_for_target_cya: createOperation(
+      usCyaDrainTimeRequestTemplate,
+      calculateUsCyaDrainTime
+    ),
+    calculate_metric_drain_time_for_target_cya: createOperation(
+      metricCyaDrainTimeRequestTemplate,
+      calculateMetricCyaDrainTime
+    )
+  });
+
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = ROOTPDX_POOL_API;
+  }
+
+  globalScope.ROOTPDX_POOL_API = ROOTPDX_POOL_API;
+
+
 })(typeof globalThis !== 'undefined' ? globalThis : window);

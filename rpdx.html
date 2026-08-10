@@ -84,29 +84,29 @@
       </div>
       <div class="row"
            role="group"
-           aria-labelledby="sodium-bicarbonate-label">
+           aria-labelledby="ta-label">
         <div>
-          <strong id="sodium-bicarbonate-label">Total Alkalinity</strong>
+          <strong id="ta-label">Total Alkalinity</strong>
           <br>
           <small>Sodium Bicarbonate</small>
         </div>
         <label class="visually-hidden"
-               for="test">Test (ppm)</label>
-        <input id="test"
-               name="test"
+               for="ta-test">Test (ppm)</label>
+        <input id="ta-test"
+               name="ta-test"
                type="number"
                min="0"
                step="any"
                required>
         <label class="visually-hidden" for="target">Target (ppm)</label>
-        <input id="target"
-               name="target"
+        <input id="ta-target"
+               name="ta_target"
                type="number"
                min="0"
                step="any"
                required>
-        <output id="result"
-                for="gallons test target factor"
+        <output id="ta-result"
+                for="gallons ta-test ta-target factor"
                 aria-label="Sodium bicarbonate result"
                 aria-live="polite"></output>
       </div>
@@ -116,32 +116,41 @@
   <script>
     const form = document.querySelector('#calculator');
     const gallons = document.querySelector('#gallons');
-    const test = document.querySelector('#test');
-    const target = document.querySelector('#target');
+    const ta_test = document.querySelector('#ta-test');
+    const ta_target = document.querySelector('#ta-target');
     //const factor = document.querySelector('#factor');
-    const result = document.querySelector('#result');
-    const debug = document.querySelector('#debug');
+    const ta_result = document.querySelector('#ta-result');
 
     //factor.value = ROOTPDX_POOL_API.effective_test_factors.sodium_bicarbonate_to_total_alkalinity;
 
     function calculate() {
       if (!form.checkValidity()) {
-        result.value = '';
+        ta_result.value = '';
         return;
       }
 
       const response = ROOTPDX_POOL_API.calculate_us_product_dose_for_target_ppm.request({
-        current_test_ppm: Number(test.value),
-        target_test_ppm: Number(target.value),
+        test_ppm: Number(ta_test.value),
+        target_ppm: Number(ta_target.value),
         pool_volume_us_gallons: Number(gallons.value),
         active_ingredient_fraction: 1,
-        test_ppm_per_active_ingredient_ppm: ROOTPDX_POOL_API.effective_test_factors.sodium_bicarbonate_to_total_alkalinity
+        mass_to_test_ratio: ROOTPDX_POOL_API.MASS_TO_TEST_RATIOS.sodium_bicarbonate_to_total_alkalinity
       });
 
-      result.value = response.ok
+     ta_result.value = response.ok
         ? `${response.data.product_volume_us_fluid_ounces.toLocaleString(undefined, { maximumFractionDigits: 0 })} oz`
         : '';
     }
+
+    function reset() {
+      gallons.value = 10000;
+      ta_test.value = ROOTPDX_POOL_API.FORM_INITIAL_VALUES.total_alkalinity.test_ppm;
+      ta_target.value = ROOTPDX_POOL_API.FORM_INITIAL_VALUES.total_alkalinity.target_ppm;
+      calculate();
+    }
+
+    reset();
+
 
     form.addEventListener('input', calculate);
   </script>
