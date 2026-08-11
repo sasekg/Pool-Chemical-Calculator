@@ -52,10 +52,15 @@
       justify-content: center;
 
       form {
-        input {
+
+        input,
+        output {
           width: 100%;
+          height: 100%;
+          display: block;
           text-align: center;
           padding: 8px 0px 10px 0px;
+          border: 1px solid var(--rootpdx-trim);
         }
 
         .row {
@@ -90,27 +95,22 @@
           }
 
           .row-label {
+            span {
+              display: block;
+            }
 
             .test-name {
-              font-weight: bold;
               position: relative;
               top: 3px;
             }
 
             .chemical-name {
               font-size: small;
-              position: relative;
-              top: -1px;
             }
           }
 
           label {
             align-self: center;
-          }
-
-          output {
-            align-self: center;
-            text-align: right;
           }
         }
       }
@@ -133,8 +133,8 @@
       <div class="row heading">
         <span></span>
         <span>Test</span>
-        <span>Set</span>
-        <span>Add</span>
+        <span>Target</span>
+        <span>DO</span>
       </div>
       <div class="row"
            role="group"
@@ -142,7 +142,7 @@
         <div class="row-label">
           <span id="ta-label"
                 class="test-name">Total Alkalinity</span>
-          <span class="chemical-name">Sodium Bicarbonate</span>
+          <span class="chemical-name">Sodium bicarbonate</span>
         </div>
         <div class="field">
           <label class="visually-hidden"
@@ -172,8 +172,62 @@
                   aria-label="Sodium bicarbonate result"
                   aria-live="polite">
             <span id="ta-result-value"
-                  class="unit"></span>                  
+                  class="result-value"></span>
             <span id="ta-result-unit"
+                  class="unit"></span>
+          </output>
+        </div>
+      </div>
+      <div class="row"
+           role="group"
+           aria-labelledby="ph-label">
+        <div class="row-label">
+          <span id="ph-label"
+                class="test-name">pH</span>
+          <span class="chemical-name">Muriatic acid</span>
+        </div>
+        <div class="field">
+          <label class="visually-hidden"
+                 for="ph-test">Test (pH)</label>
+          <input id="ph-test"
+                 name="ph-test"
+                 type="number"
+                 min="0"
+                 step="any"
+                 required>
+          <span class="unit">pH</span>
+        </div>
+        <div class="field">
+          <label class="visually-hidden"
+                 for="ph-target">Target (pH)</label>
+          <input id="ph-target"
+                 name="ph_target"
+                 type="number"
+                 min="0"
+                 step="any"
+                 required>
+          <span class="unit">pH</span>
+        </div>
+        <div class="field">
+          <label class="visually-hidden"
+                 for="ph-active-ingredient-fraction">Active Ingredient Fraction (%)</label>
+          <input id="ph-active-ingredient-fraction"
+                 name="ph-active-ingredient-fraction"
+                 type="number"
+                 min="0"
+                 max="100"
+                 step="any"
+                 required>
+          <span class="unit">hcl %</span>
+        </div>
+        <div class="field">
+          <output id="ph-result"
+                  for="gallons ph-test ph-target factor"
+                  aria-label="Muriatic acid result"
+                  aria-live="polite">
+            <span id="ph-result-value"
+                  class="result-value"></span>
+            <span id="ph-result-unit"
                   class="unit"></span>
           </output>
         </div>
@@ -202,13 +256,23 @@
       return ROOTPDX_POOL_API.ERROR_STATUS;
     }
 
-    function get_ta_html_elements() {
+    function get_common_html_elements(pfx) {
       return {
-        test: document.querySelector('#ta-test'),
-        target: document.querySelector('#ta-target'),
-        result_value: document.querySelector('#ta-result-value'),
-        result_unit: document.querySelector('#ta-result-unit')
+        test: document.querySelector(`#${pfx}-test`),
+        target: document.querySelector(`#${pfx}-target`),
+        result_value: document.querySelector(`#${pfx}-result-value`),
+        result_unit: document.querySelector(`#${pfx}-result-unit`)
       }
+    }
+
+    function get_ta_html_elements() {
+      return get_common_html_elements('ta');
+    }
+
+    function get_ph_html_elements() {
+      const html = get_common_html_elements('ph');
+      html.active_ingredient_fraction = document.querySelector('#ph-active-ingredient-fraction');
+      return html;
     }
 
     function calc_total_alkalinity() {
@@ -240,8 +304,12 @@
         ta_html.result_unit.innerHTML = "lb";
       } else {
         ta_html.result_value.innerHTML = oz;
-        ta_html.result_unit.innerHTML= "oz";
+        ta_html.result_unit.innerHTML = "oz";
       }
+    }
+
+    function calc_ph() {
+
     }
 
     function calculate() {
@@ -251,7 +319,7 @@
     function reset_total_alkalinity_result() {
       const ta_html = get_ta_html_elements();
       ta_html.result_value.innerHTML = '';
-      ta_html.result_unit.innerHTML = '';      
+      ta_html.result_unit.innerHTML = '';
     }
 
     function reset_total_alkalinity() {
@@ -261,9 +329,24 @@
       reset_total_alkalinity_result();
     }
 
+    function reset_ph_result() {
+      const html = get_ph_html_elements();
+      html.result_value.innerHTML = '';
+      html.result_unit.innerHTML = '';
+    }
+
+    function reset_ph() {
+      const ph_html = get_ph_html_elements();
+      ph_html.test.value = ROOTPDX_POOL_API.FORM_INITIAL_VALUES.ph.test_ph
+      ph_html.target.value = ROOTPDX_POOL_API.FORM_INITIAL_VALUES.ph.target_ph;
+      ph_html.active_ingredient_fraction.value = ROOTPDX_POOL_API.FORM_INITIAL_VALUES.ph.percent_hcl;
+      reset_ph_result();
+    }
+
     function reset() {
       gallons.value = 10000;
       reset_total_alkalinity();
+      reset_ph();
       calculate();
     }
 
