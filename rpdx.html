@@ -25,6 +25,7 @@
       box-sizing: border-box;
     }
 
+    output,
     input[type="number"] {
       appearance: textfield;
     }
@@ -65,9 +66,10 @@
 
         .row {
           display: grid;
-          grid-template-columns: 150px repeat(2, 60px) 60px;
+          grid-template-columns: 150px repeat(5, 60px);
           gap: 10px;
-          margin: 5px auto;
+          margin-bottom: 5px;
+          height: 40px;
 
 
           .field {
@@ -81,6 +83,10 @@
               position: absolute;
               bottom: 3px;
               left: 0px;
+
+              .symbol {
+                font-size: .75em;
+              }
             }
           }
 
@@ -92,6 +98,23 @@
           &.heading {
             text-align: center;
             align-self: center;
+            height: unset;
+
+            .col-name,
+            .col-symbol {
+              display: block;
+            }
+
+            .active,
+            .relative-mass {
+              .col-name {
+                font-size: small;
+              }
+
+              .col-symbol {
+                font-size: x-small;
+              }
+            }
           }
 
           .row-label {
@@ -134,6 +157,8 @@
         <span></span>
         <span>Test</span>
         <span>Target</span>
+        <span class="active"><span class="col-name">Active</span><span class="col-name">%</span><span class="col-symbol">0 to 100</span></span>
+        <span class="relative-mass"><span class="col-name">Relative Mass</span><span class="col-symbol">0 to 1</span></span>
         <span>DO</span>
       </div>
       <div class="row"
@@ -159,12 +184,34 @@
           <label class="visually-hidden"
                  for="ta-target">Target (ppm)</label>
           <input id="ta-target"
-                 name="ta_target"
+                 name="ta-target"
                  type="number"
                  min="0"
                  step="any"
                  required>
           <span class="unit">ppm</span>
+        </div>
+        <div class="field"> <label class="visually-hidden"
+                 for="ta-active">Active Ingredient % 0 to 100</label>
+          <input id="ta-active"
+                 name="ta-active"
+                 type="number"
+                 min="0"
+                 max="100"
+                 step="any"
+                 required>
+          <span class="unit">%</span>
+        </div>
+        <div class="field"><label class="visually-hidden"
+                 for="ta-relative-mass">Relative Mass 0.00 to 1.00</label>
+          <input id="ta-relative-mass"
+                 name="ta-relative-mass"
+                 type="number"
+                 min="0"
+                 max="1"
+                 step="any"
+                 required>
+          <span class="unit">%</span>
         </div>
         <div class="field">
           <output id="ta-result"
@@ -210,15 +257,27 @@
         </div>
         <div class="field">
           <label class="visually-hidden"
-                 for="ph-active-ingredient-fraction">Active Ingredient Fraction (%)</label>
-          <input id="ph-active-ingredient-fraction"
-                 name="ph-active-ingredient-fraction"
+                 for="ph-active">Active Ingredient Fraction (%)</label>
+          <input id="ph-active"
+                 name="ph-active"
                  type="number"
                  min="0"
                  max="100"
                  step="any"
                  required>
-          <span class="unit">hcl %</span>
+          <span class="unit">hcl<span class="symbol">%</span></span>
+        </div>
+        <div class="field">
+          <label class="visually-hidden"
+                 for="ph-total-alkalinity">Total Alkalinity value for Muriatic acid calculation</label>
+          <input id="ph-total-alkalinity"
+                 name="ph-total-alkalinity"
+                 type="number"
+                 min="0"
+                 max="200"
+                 step="any"
+                 required>
+          <span class="unit">ppm</span>          
         </div>
         <div class="field">
           <output id="ph-result"
@@ -244,8 +303,8 @@
         test_ppm: Number(test),
         target_ppm: Number(target),
         pool_volume_us_gallons: Number(gal),
-        active_ingredient_fraction: active_pct,
-        mass_to_test_ratio: mass_ratio
+        active_ingredient_percent: active_pct,
+        relative_mass: mass_ratio
       });
 
       if (response.ok) {
@@ -260,6 +319,8 @@
       return {
         test: document.querySelector(`#${pfx}-test`),
         target: document.querySelector(`#${pfx}-target`),
+        active: document.querySelector(`#${pfx}-active`),
+        relative_mass: document.querySelector(`#${pfx}-relative-mass`),
         result_value: document.querySelector(`#${pfx}-result-value`),
         result_unit: document.querySelector(`#${pfx}-result-unit`)
       }
@@ -271,7 +332,6 @@
 
     function get_ph_html_elements() {
       const html = get_common_html_elements('ph');
-      html.active_ingredient_fraction = document.querySelector('#ph-active-ingredient-fraction');
       return html;
     }
 
@@ -289,7 +349,7 @@
         ta_html.target.value,
         gallons.value,
         1,
-        ROOTPDX_POOL_API.MASS_TO_TEST_RATIOS.sodium_bicarbonate_to_total_alkalinity
+        ROOTPDX_POOL_API.RELATIVE_MASSES.sodium_bicarbonate_to_total_alkalinity
       );
 
       if (result == ROOTPDX_POOL_API.ERROR_STATUS) {
@@ -317,15 +377,20 @@
     }
 
     function reset_total_alkalinity_result() {
-      const ta_html = get_ta_html_elements();
-      ta_html.result_value.innerHTML = '';
-      ta_html.result_unit.innerHTML = '';
+      const o = get_ta_html_elements();
+      o.result_value.innerHTML = '';
+      o.result_unit.innerHTML = '';
     }
 
     function reset_total_alkalinity() {
-      const ta_html = get_ta_html_elements();
-      ta_html.test.value = ROOTPDX_POOL_API.FORM_INITIAL_VALUES.total_alkalinity.test_ppm;
-      ta_html.target.value = ROOTPDX_POOL_API.FORM_INITIAL_VALUES.total_alkalinity.target_ppm;
+      const o = get_ta_html_elements();
+      const v = ROOTPDX_POOL_API.FORM_INITIAL_VALUES.total_alkalinity;
+
+      o.test.value = v.test_ppm;
+      o.target.value = v.target_ppm;
+      o.active.value = v.active_ingredient_percent.toLocaleString(undefined, { maximumFractionDigits: 1 });
+      o.relative_mass.value = v.relative_mass.toLocaleString(undefined, { maximumFractionDigits: 4 });
+
       reset_total_alkalinity_result();
     }
 
@@ -336,10 +401,15 @@
     }
 
     function reset_ph() {
-      const ph_html = get_ph_html_elements();
-      ph_html.test.value = ROOTPDX_POOL_API.FORM_INITIAL_VALUES.ph.test_ph
-      ph_html.target.value = ROOTPDX_POOL_API.FORM_INITIAL_VALUES.ph.target_ph;
-      ph_html.active_ingredient_fraction.value = ROOTPDX_POOL_API.FORM_INITIAL_VALUES.ph.percent_hcl;
+      const o = get_ph_html_elements();
+      o.total_alkalinity = document.querySelector("#ph-total-alkalinity");
+      const v = ROOTPDX_POOL_API.FORM_INITIAL_VALUES.ph;
+
+      o.test.value = v.test_ph;
+      o.target.value = v.target_ph;
+      o.active.value = v.percent_hcl;
+      o.total_alkalinity.value = v.total_alkalinity_ppm;
+
       reset_ph_result();
     }
 
@@ -351,7 +421,6 @@
     }
 
     reset();
-
 
     form.addEventListener('input', calculate);
   </script>

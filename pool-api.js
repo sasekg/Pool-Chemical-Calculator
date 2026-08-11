@@ -11,8 +11,8 @@
   const ERROR_STATUS = "ERROR_STATUS";
 
   // Dimensionless reference values expressed as test ppm produced per ppm of
-  // pure product. Product purity belongs in active_ingredient_fraction.
-  const MASS_TO_TEST_RATIOS = Object.freeze({
+  // pure product. Product purity belongs in active_ingredient_percent.
+  const RELATIVE_MASSES = Object.freeze({
     calcium_chloride_anhydrous_to_calcium_hardness: 100.0869 / 110.98,
     calcium_chloride_dihydrate_to_calcium_hardness: 100.0869 / 147.014,
     chlorine_trichlor_to_free_chlorine: (3 * 70.906) / 232.41,
@@ -29,8 +29,8 @@
   const commonRequestTemplate = Object.freeze({
     test_ppm: 2,
     target_ppm: 3,
-    active_ingredient_fraction: 0.3145,
-    mass_to_test_ratio: 0.2
+    active_ingredient_percent: 31.45,
+    relative_mass: 0.2
   });
 
   const usRequestTemplate = Object.freeze({
@@ -135,19 +135,19 @@
     if (request.target_ppm < 0) outOfRangeFields.push('target_ppm');
     if (request[volumeField] <= 0) outOfRangeFields.push(volumeField);
     if (
-      request.active_ingredient_fraction <= 0 ||
-      request.active_ingredient_fraction > 1
+      request.active_ingredient_percent <= 0 ||
+      request.active_ingredient_percent > 1
     ) {
-      outOfRangeFields.push('active_ingredient_fraction');
+      outOfRangeFields.push('active_ingredient_percent');
     }
-    if (request.mass_to_test_ratio <= 0) {
-      outOfRangeFields.push('mass_to_test_ratio');
+    if (request.relative_mass <= 0) {
+      outOfRangeFields.push('relative_mass');
     }
 
     if (outOfRangeFields.length > 0) {
       return errorResponse(
         'VALUE_OUT_OF_RANGE',
-        'PPM values cannot be negative; pool volume and the response factor must be positive; active_ingredient_fraction must be greater than 0 and at most 1.',
+        'PPM values cannot be negative; pool volume and the response factor must be positive; active_ingredient_percent must be greater than 0 and at most 1.',
         outOfRangeFields
       );
     }
@@ -168,8 +168,8 @@
       0
     );
     const effectiveTestResponse =
-      request.active_ingredient_fraction *
-      request.mass_to_test_ratio;
+      (request.active_ingredient_percent/100.0) *
+      request.relative_mass;
     const requiredProductPpm = desiredTestChangePpm / effectiveTestResponse;
     const poolVolumeLiters = volumeToLiters(request[volumeField]);
     const productVolumeLiters =
@@ -479,8 +479,8 @@
     total_alkalinity: {
       test_ppm: 90,
       target_ppm: REFERENCE_TOTAL_ALKALINITY_PPM,
-      active_ingredient_fraction: 1,
-      mass_to_test_ratio: MASS_TO_TEST_RATIOS.sodium_bicarbonate_to_total_alkalinity
+      active_ingredient_percent: 100,
+      relative_mass: RELATIVE_MASSES.sodium_bicarbonate_to_total_alkalinity
     },
 
     ph: {
@@ -493,15 +493,15 @@
     free_chlorine: {
       test: 0.5,
       target: 2.0,
-      active_ingredient_fraction: 1,
-      mass_to_test_ratio: MASS_TO_TEST_RATIOS.chlorine_cal_hypo_to_free_chlorine
+      active_ingredient_percent: 100,
+      relative_mass: RELATIVE_MASSES.chlorine_cal_hypo_to_free_chlorine
     },
 
     calcium_hardness: {
       test_ppm: 200,
       target_ppm: 250,
-      active_ingredient_fraction: .94,
-      mass_to_test_ratio: MASS_TO_TEST_RATIOS.calcium_chloride_dihydrate_to_calcium_hardness
+      active_ingredient_percent: 94,
+      relative_mass: RELATIVE_MASSES.calcium_chloride_dihydrate_to_calcium_hardness
     },
 
     cyanuric_acid: {
@@ -514,14 +514,14 @@
     borate: {
       test_ppm: 10,
       target_ppm: 50,
-      active_ingredient_fraction: 1,
-      mass_to_test_ratio: MASS_TO_TEST_RATIOS.bioguard_optimizer_to_borate
+      active_ingredient_percent: 100,
+      relative_mass: RELATIVE_MASSES.bioguard_optimizer_to_borate
     }
   })
 
   const ROOTPDX_POOL_API = Object.freeze({
     version: '0.1.0',
-    MASS_TO_TEST_RATIOS: MASS_TO_TEST_RATIOS, 
+    RELATIVE_MASSES: RELATIVE_MASSES, 
     FORM_INITIAL_VALUES: FORM_INITIAL_VALUES,
     ERROR_STATUS: ERROR_STATUS,
     calculate_us_product_dose_for_target_ppm: createOperation(
