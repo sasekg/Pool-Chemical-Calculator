@@ -211,7 +211,7 @@
                  max="1"
                  step="any"
                  required>
-          <span class="unit">%</span>
+          <span class="unit">M/H2O</span>
         </div>
         <div class="field">
           <output id="ta-result"
@@ -277,7 +277,7 @@
                  max="200"
                  step="any"
                  required>
-          <span class="unit">ppm</span>          
+          <span class="unit">TA ppm</span>
         </div>
         <div class="field">
           <output id="ph-result"
@@ -303,7 +303,7 @@
         test_ppm: Number(test),
         target_ppm: Number(target),
         pool_volume_us_gallons: Number(gal),
-        active_ingredient_percent: active_pct,
+        active_ingredient_percent: Number(active_pct),
         relative_mass: mass_ratio
       });
 
@@ -313,6 +313,23 @@
         console.log(response);
       }
       return ROOTPDX_POOL_API.ERROR_STATUS;
+    }
+
+    function calculate_us_muriatic_acid_dose_for_target_ph(test, target, gal, percent_hcl, ta) {
+      const response = ROOTPDX_POOL_API.calculate_us_muriatic_acid_dose_for_target_ph.request({
+        test_ph: Number(test),
+        target_ph: Number(target),
+        total_alkalinity_ppm: Number(ta),
+        percent_hcl: Number(percent_hcl),
+        pool_volume_us_gallons: Number(gal)
+      });
+
+      if (response.ok) {
+        return response.data.muriatic_acid_volume_us_fluid_ounces;
+      } else {
+        console.log(response);
+      }
+      return ROOTPDX_POOL_API.ERROR_STATUS;      
     }
 
     function get_common_html_elements(pfx) {
@@ -331,8 +348,9 @@
     }
 
     function get_ph_html_elements() {
-      const html = get_common_html_elements('ph');
-      return html;
+      const o = get_common_html_elements('ph');
+      o.total_alkalinity = document.querySelector("#ph-total-alkalinity");
+      return o;
     }
 
     function calc_total_alkalinity() {
@@ -342,34 +360,51 @@
         return;
       }
 
-      const ta_html = get_ta_html_elements();
+      const o = get_ta_html_elements();
 
       const result = calc_us_ppm(
-        ta_html.test.value,
-        ta_html.target.value,
+        o.test.value,
+        o.target.value,
         gallons.value,
-        1,
+        100,
         ROOTPDX_POOL_API.RELATIVE_MASSES.sodium_bicarbonate_to_total_alkalinity
       );
 
+      console.log(result);
       if (result == ROOTPDX_POOL_API.ERROR_STATUS) {
         return;
       }
 
-      const oz = result.toLocaleString(undefined, { maximumFractionDigits: 0 })
+      const oz = Number(result).toFixed(2)      //toLocaleString(undefined, { maximumFractionDigits: 0 })
 
       if (oz >= 64) {
-        const lb = Number(oz / 16).toLocaleString(undefined, { 'maximumFractionDigits': 1 });
-        ta_html.result_value.innerHTML = lb;
-        ta_html.result_unit.innerHTML = "lb";
+        const lb = Number(oz / 16).toFixed(2)     //toLocaleString(undefined, { 'maximumFractionDigits': 1 });
+        o.result_value.innerHTML = lb;
+        o.result_unit.innerHTML = "lb";
       } else {
-        ta_html.result_value.innerHTML = oz;
-        ta_html.result_unit.innerHTML = "oz";
+        o.result_value.innerHTML = oz;
+        o.result_unit.innerHTML = "oz";
       }
     }
 
     function calc_ph() {
+      if (!form.checkValidity()) {
+        reset_ph_result();
+        console.log(form);
+        return;
+      }
 
+      const o = get_ph_html_elements();
+
+      const result = calculate_us_muriatic_acid_dose_for_target_ph(
+        o.test.value,
+        o.target.value,
+        gallons.value,
+        o.total_alkalinity.value,
+        ROOTPDX_POOL_API.RELATIVE_MASSES.sodium_bicarbonate_to_total_alkalinity
+      );
+
+      console.log(result);
     }
 
     function calculate() {
@@ -402,7 +437,6 @@
 
     function reset_ph() {
       const o = get_ph_html_elements();
-      o.total_alkalinity = document.querySelector("#ph-total-alkalinity");
       const v = ROOTPDX_POOL_API.FORM_INITIAL_VALUES.ph;
 
       o.test.value = v.test_ph;

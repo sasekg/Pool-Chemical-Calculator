@@ -136,7 +136,7 @@
     if (request[volumeField] <= 0) outOfRangeFields.push(volumeField);
     if (
       request.active_ingredient_percent <= 0 ||
-      request.active_ingredient_percent > 1
+      request.active_ingredient_percent > 100.0
     ) {
       outOfRangeFields.push('active_ingredient_percent');
     }
@@ -147,7 +147,7 @@
     if (outOfRangeFields.length > 0) {
       return errorResponse(
         'VALUE_OUT_OF_RANGE',
-        'PPM values cannot be negative; pool volume and the response factor must be positive; active_ingredient_percent must be greater than 0 and at most 1.',
+        'PPM values cannot be negative; pool volume and the response factor must be positive; active_ingredient_percent must be greater than 0 and at most 100.',
         outOfRangeFields
       );
     }
@@ -156,6 +156,7 @@
   }
 
   function calculateProductDose(rawRequest, volumeField, volumeToLiters) {
+    console.log(rawRequest);
     const normalized = normalizeRequest(rawRequest);
     if (!normalized.ok) return normalized;
 
