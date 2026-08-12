@@ -317,6 +317,7 @@
   }
 
   function calculateUsMuriaticAcidDose(rawRequest) {
+    console.log(rawRequest);
     const response = calculateMuriaticAcidDose(
       rawRequest,
       'pool_volume_us_gallons',

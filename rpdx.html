@@ -352,6 +352,21 @@
       o.total_alkalinity = document.querySelector("#ph-total-alkalinity");
       return o;
     }
+    
+    function format_oz(result) {
+      const oz = Number(result).toFixed(2);
+      const val_unit = {
+        val: oz,
+        unit: 'oz'
+      }
+
+      if (oz >= 64) {
+        const lb = Number(oz / 16).toFixed(2);
+        val_unit.val = lb;
+        val_unit.unit = "lb";
+      } 
+      return val_unit;
+    }
 
     function calc_total_alkalinity() {
       if (!form.checkValidity()) {
@@ -375,16 +390,9 @@
         return;
       }
 
-      const oz = Number(result).toFixed(2)      //toLocaleString(undefined, { maximumFractionDigits: 0 })
-
-      if (oz >= 64) {
-        const lb = Number(oz / 16).toFixed(2)     //toLocaleString(undefined, { 'maximumFractionDigits': 1 });
-        o.result_value.innerHTML = lb;
-        o.result_unit.innerHTML = "lb";
-      } else {
-        o.result_value.innerHTML = oz;
-        o.result_unit.innerHTML = "oz";
-      }
+      const val_unit = format_oz(result);
+      o.result_value.innerHTML = val_unit.val;
+      o.result_unit.innerHTML = val_unit.unit;
     }
 
     function calc_ph() {
@@ -400,15 +408,23 @@
         o.test.value,
         o.target.value,
         gallons.value,
-        o.total_alkalinity.value,
-        ROOTPDX_POOL_API.RELATIVE_MASSES.sodium_bicarbonate_to_total_alkalinity
+        o.active.value,
+        o.total_alkalinity.value
       );
 
       console.log(result);
+      if (result == ROOTPDX_POOL_API.ERROR_STATUS) {
+        return;
+      }
+
+      const val_unit = format_oz(result);
+      o.result_value.innerHTML = val_unit.val;
+      o.result_unit.innerHTML = val_unit.unit;      
     }
 
     function calculate() {
       calc_total_alkalinity();
+      calc_ph();
     }
 
     function reset_total_alkalinity_result() {
