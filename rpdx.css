@@ -51,9 +51,7 @@ main {
       &.heading {
         text-align: center;
         align-self: center;
-
-        text-box-trim: both;
-        text-box-edge: cap alphabetic;
+        margin-bottom: 7px;
 
         .col-name,
         .col-symbol {
