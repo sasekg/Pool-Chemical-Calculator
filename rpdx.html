@@ -217,7 +217,7 @@
         <div class="field">
           <output id="cl-result"
                   for="gallons cl-test cl-target factor"
-                  aria-label="Sodium bicarbonate result"
+                  aria-label="Free chlorine result"
                   aria-live="polite">
             <span id="cl-result-value"
                   class="result-value"></span>
@@ -226,6 +226,70 @@
           </output>
         </div>
       </div>
+      <div class="row"
+           role="group"
+           aria-labelledby="ch-label">
+        <div class="row-label">
+          <span id="ch-label"
+                class="test-name">Calcium Hardness</span>
+          <span class="chemical-name">[chloride dihydrate]</span>
+        </div>
+        <div class="field">
+          <label class="visually-hidden"
+                 for="ch-test">Test (ppm)</label>
+          <input id="ch-test"
+                 name="ch-test"
+                 type="number"
+                 min="0"
+                 step="any"
+                 required>
+          <span class="unit">ppm</span>
+        </div>
+        <div class="field">
+          <label class="visually-hidden"
+                 for="ch-target">Target (ppm)</label>
+          <input id="ch-target"
+                 name="ch-target"
+                 type="number"
+                 min="0"
+                 step="any"
+                 required>
+          <span class="unit">ppm</span>
+        </div>
+        <div class="field"> <label class="visually-hidden"
+                 for="ch-active">Active Ingredient % 0 to 100</label>
+          <input id="ch-active"
+                 name="ch-active"
+                 type="number"
+                 min="0"
+                 max="100"
+                 step="any"
+                 required>
+          <span class="unit">%</span>
+        </div>
+        <div class="field"><label class="visually-hidden"
+                 for="ch-relative-mass">Relative Mass 0.00 to 1.00</label>
+          <input id="ch-relative-mass"
+                 name="ch-relative-mass"
+                 type="number"
+                 min="0"
+                 max="1"
+                 step="any"
+                 required>
+          <span class="unit">M/H2O</span>
+        </div>
+        <div class="field">
+          <output id="ch-result"
+                  for="gallons ch-test ch-target factor"
+                  aria-label="Calcium hardness result"
+                  aria-live="polite">
+            <span id="ch-result-value"
+                  class="result-value"></span>
+            <span id="ch-result-unit"
+                  class="unit"></span>
+          </output>
+        </div>
+      </div>      
     </form>
   </main>
   <script src="pool-api.js"></script>

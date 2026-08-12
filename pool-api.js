@@ -73,6 +73,8 @@
     pump_flow_liters_per_minute: 151.41647136
   });
 
+  // #region Pool calculations
+
   function errorResponse(code, message, fields) {
     return {
       ok: false,
@@ -475,6 +477,8 @@
       }
     });
   }
+
+  // #endregion
 
   const FORM_INITIAL_VALUES = Object.freeze({
     volume: 10000,
