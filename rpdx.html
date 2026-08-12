@@ -61,6 +61,7 @@
           display: block;
           text-align: center;
           padding: 8px 0px 10px 0px;
+          font-size: 14px;
           border: 1px solid var(--rootpdx-trim);
         }
 
@@ -70,7 +71,6 @@
           gap: 10px;
           margin-bottom: 5px;
           height: 40px;
-
 
           .field {
             position: relative;
@@ -85,7 +85,7 @@
               left: 0px;
 
               .symbol {
-                font-size: .75em;
+                font-size: 8px;
               }
             }
           }
@@ -118,17 +118,31 @@
           }
 
           .row-label {
+            text-wrap: nowrap;
+            position: relative;
+
+
             span {
               display: block;
             }
 
             .test-name {
-              position: relative;
-              top: 3px;
+              width: 100%;
+              height: 100%;
+              display: block;
+              text-align: center;
+              padding: 8px 0px 10px 0px;
+              font-size: 14px;
             }
 
             .chemical-name {
-              font-size: small;
+              display: block;
+              width: 100%;
+              text-align: center;
+              font-size: x-small;
+              position: absolute;
+              bottom: 3px;
+              left: 0px;
             }
           }
 
@@ -167,7 +181,7 @@
         <div class="row-label">
           <span id="ta-label"
                 class="test-name">Total Alkalinity</span>
-          <span class="chemical-name">Sodium bicarbonate</span>
+          <span class="chemical-name">[Sodium bicarbonate]</span>
         </div>
         <div class="field">
           <label class="visually-hidden"
@@ -231,7 +245,7 @@
         <div class="row-label">
           <span id="ph-label"
                 class="test-name">pH</span>
-          <span class="chemical-name">Muriatic acid</span>
+          <span class="chemical-name">[Muriatic acid]</span>
         </div>
         <div class="field">
           <label class="visually-hidden"
@@ -297,7 +311,7 @@
         <div class="row-label">
           <span id="cl-label"
                 class="test-name">Free Chlorine</span>
-          <span class="chemical-name">Cal-Hypo</span>
+          <span class="chemical-name">[Cal-Hypo]</span>
         </div>
         <div class="field">
           <label class="visually-hidden"
@@ -368,7 +382,7 @@
         target_ppm: Number(target),
         pool_volume_us_gallons: Number(gal),
         active_ingredient_percent: Number(active_pct),
-        relative_mass: mass_ratio
+        relative_mass: Number(mass_ratio)
       });
 
       if (response.ok) {
@@ -393,7 +407,7 @@
       } else {
         console.log(response);
       }
-      return ROOTPDX_POOL_API.ERROR_STATUS;      
+      return ROOTPDX_POOL_API.ERROR_STATUS;
     }
 
     function get_common_html_elements(pfx) {
@@ -420,7 +434,7 @@
     function get_cl_html_elements() {
       return get_common_html_elements('cl');
     }
-    
+
     function format_oz(result) {
       const oz = Number(result).toFixed(2);
       const val_unit = {
@@ -432,7 +446,7 @@
         const lb = Number(oz / 16).toFixed(2);
         val_unit.val = lb;
         val_unit.unit = "lb";
-      } 
+      }
       return val_unit;
     }
 
@@ -449,8 +463,8 @@
         o.test.value,
         o.target.value,
         gallons.value,
-        100,
-        ROOTPDX_POOL_API.RELATIVE_MASSES.sodium_bicarbonate_to_total_alkalinity
+        o.active.value,
+        o.relative_mass.value
       );
 
       console.log(result);
@@ -516,13 +530,13 @@
 
       const val_unit = format_oz(result);
       o.result_value.innerHTML = val_unit.val;
-      o.result_unit.innerHTML = val_unit.unit;      
+      o.result_unit.innerHTML = val_unit.unit;
     }
 
     function calculate() {
       calc_total_alkalinity();
       calc_ph();
-      calc_cl();
+      calc_free_chlorine();
     }
 
     function reset_total_alkalinity_result() {
@@ -574,7 +588,7 @@
       o.test.value = v.test;
       o.target.value = v.target;
       o.active.value = v.active_ingredient_percent;
-      o.relative_mass.value = v.relative_mass;
+      o.relative_mass.value = Number(v.relative_mass).toFixed(4);
 
       reset_cl_result();
     }
