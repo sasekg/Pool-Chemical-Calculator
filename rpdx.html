@@ -68,7 +68,7 @@
         .row {
           display: grid;
           grid-template-columns: 150px repeat(5, 60px);
-          gap: 10px;
+          gap: 5px;
           margin-bottom: 5px;
           height: 40px;
 
@@ -92,7 +92,11 @@
 
           &.volume {
             margin: 20px auto;
-            text-align: right;
+
+            .volume-units-label {
+              align-self: center;
+              font-size: 15px;
+            }
           }
 
           &.heading {
@@ -145,10 +149,6 @@
               left: 0px;
             }
           }
-
-          label {
-            align-self: center;
-          }
         }
       }
     }
@@ -159,7 +159,9 @@
     <form id="calculator">
       <div class="row volume">
         <span></span>
-        <label for="gallons">Gallons</label>
+        <label class="visually-hidden"
+               for="gallons">Gallons</label>
+        <span class="volume-units-label">Gallons</span>
         <input id="gallons"
                name="gallons"
                type="number"
@@ -177,7 +179,7 @@
       </div>
       <div class="row"
            role="group"
-           aria-labelledby="ta-label">
+           aria-labelledby="test-name chemical-name">
         <div class="row-label">
           <span id="ta-label"
                 class="test-name">Total Alkalinity</span>
@@ -368,7 +370,7 @@
                   class="unit"></span>
           </output>
         </div>
-      </div>      
+      </div>
     </form>
   </main>
   <script src="pool-api.js"></script>
