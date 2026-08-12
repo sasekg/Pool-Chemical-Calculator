@@ -1,12 +1,8 @@
-
-
-
 main {
   display: flex;
   justify-content: center;
 
   form {
-
     input,
     output {
       width: 100%;
@@ -55,7 +51,9 @@ main {
       &.heading {
         text-align: center;
         align-self: center;
-        height: unset;
+
+        text-box-trim: both;
+        text-box-edge: cap alphabetic;
 
         .col-name,
         .col-symbol {
@@ -65,10 +63,12 @@ main {
         .active,
         .relative-mass {
           .col-name {
+            height: 16px;
             font-size: small;
           }
 
           .col-symbol {
+            height: 10px;
             font-size: x-small;
           }
         }
@@ -77,7 +77,6 @@ main {
       .row-label {
         text-wrap: nowrap;
         position: relative;
-
 
         span {
           display: block;
