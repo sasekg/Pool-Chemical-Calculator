@@ -1,0 +1,107 @@
+
+
+
+main {
+  display: flex;
+  justify-content: center;
+
+  form {
+
+    input,
+    output {
+      width: 100%;
+      height: 100%;
+      display: block;
+      text-align: center;
+      padding: 8px 0px 10px 0px;
+      font-size: 14px;
+      border: 1px solid var(--rootpdx-trim);
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 150px repeat(5, 60px);
+      gap: 5px;
+      margin-bottom: 5px;
+      height: 40px;
+
+      .field {
+        position: relative;
+
+        .unit {
+          display: block;
+          width: 100%;
+          text-align: center;
+          font-size: x-small;
+          position: absolute;
+          bottom: 1px;
+          left: 0px;
+
+          .symbol {
+            font-size: 8px;
+          }
+        }
+      }
+
+      &.volume {
+        margin: 20px auto;
+
+        .volume-units-label {
+          align-self: center;
+          font-size: 15px;
+        }
+      }
+
+      &.heading {
+        text-align: center;
+        align-self: center;
+        height: unset;
+
+        .col-name,
+        .col-symbol {
+          display: block;
+        }
+
+        .active,
+        .relative-mass {
+          .col-name {
+            font-size: small;
+          }
+
+          .col-symbol {
+            font-size: x-small;
+          }
+        }
+      }
+
+      .row-label {
+        text-wrap: nowrap;
+        position: relative;
+
+
+        span {
+          display: block;
+        }
+
+        .test-name {
+          width: 100%;
+          height: 100%;
+          display: block;
+          text-align: center;
+          padding: 8px 0px 10px 0px;
+          font-size: 14px;
+        }
+
+        .chemical-name {
+          display: block;
+          width: 100%;
+          text-align: center;
+          font-size: x-small;
+          position: absolute;
+          bottom: 0px;
+          left: 0px;
+        }
+      }
+    }
+  }
+}
