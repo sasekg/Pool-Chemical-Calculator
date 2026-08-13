@@ -5,9 +5,12 @@
   <meta name="viewport"
         content="width=device-width, initial-scale=1">
   <title>Pool Chemical Calculator</title>
-  <link rel="stylesheet" href="reset.css">
-  <link rel="stylesheet" href="rootpdx-vars.css">
-  <link rel="stylesheet" href="rpdx.css">
+  <link rel="stylesheet"
+        href="reset.css">
+  <link rel="stylesheet"
+        href="rootpdx-vars.css">
+  <link rel="stylesheet"
+        href="rpdx.css">
 </head>
 <body>
   <main>
@@ -21,6 +24,16 @@
                name="gallons"
                type="number"
                min="1"
+               step="any"
+               required>
+                       <span></span>
+        <label class="visually-hidden"
+               for="flow-rate">Flow Rate</label>
+        <span class="volume-units-label">Flow Rate</span>
+        <input id="flow-rate"
+               name="flow-rate"
+               type="number"
+               min="0"
                step="any"
                required>
       </div>
@@ -289,7 +302,75 @@
                   class="unit"></span>
           </output>
         </div>
-      </div>      
+      </div>
+      <div class="row"
+           role="group"
+           aria-labelledby="cya-label">
+        <div class="row-label">
+          <span id="cya-label"
+                class="test-name">Cyanuric Acid</span>
+          <span class="chemical-name">[Drain Volume]</span>
+        </div>
+        <div class="field">
+          <label class="visually-hidden"
+                 for="cya-test">Test (ppm)</label>
+          <input id="cya-test"
+                 name="cya-test"
+                 type="number"
+                 min="0"
+                 step="any"
+                 required>
+          <span class="unit">ppm</span>
+        </div>
+        <div class="field">
+          <label class="visually-hidden"
+                 for="cya-target">Target (ppm)</label>
+          <input id="cya-target"
+                 name="cya-target"
+                 type="number"
+                 min="0"
+                 step="any"
+                 required>
+          <span class="unit">ppm</span>
+        </div>
+        <div class="field"> <label class="visually-hidden"
+                 for="cya-active">Active Ingredient % 0 to 100</label>
+          <input id="cya-active"
+                 name="cya-active"
+                 type="number"
+                 min="0"
+                 max="100"
+                 value="100"
+                 disabled
+                 step="any"
+                 required>
+          <span class="unit">%</span>
+        </div>
+        <div class="field"><label class="visually-hidden"
+                 for="cya-relative-mass">Relative Mass 0.00 to 1.00</label>
+          <input id="cya-relative-mass"
+                 name="cya-relative-mass"
+                 type="number"
+                 min="0"
+                 max="1"
+                 value="1"
+                 disabled
+                 step="any"
+                 required>
+          <span class="unit">M/H2O</span>
+        </div>
+        <div class="field">
+          <output id="cya-result"
+                  for="gallons cya-test cya-target factor"
+                  aria-label="Water volume to remove"
+                  aria-live="polite">
+            <span id="cya-result-value"
+                  class="result-value"></span>
+            <span id="cya-result-unit"
+                  class="unit"></span>
+          </output>
+        </div>
+      </div>
     </form>
   </main>
   <script src="pool-api.js"></script>

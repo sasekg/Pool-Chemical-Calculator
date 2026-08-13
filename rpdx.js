@@ -1,6 +1,24 @@
 const form = document.querySelector('#calculator');
 const gallons = document.querySelector('#gallons');
 
+// #region utility
+function format_oz(result) {
+  const oz = Number(result).toFixed(2);
+  const val_unit = {
+    val: oz,
+    unit: 'oz'
+  }
+
+  if (oz >= 64) {
+    const lb = Number(oz / 16).toFixed(2);
+    val_unit.val = lb;
+    val_unit.unit = "lb";
+  }
+  return val_unit;
+}
+// #endregion
+
+// #region ROOTPDX_POOL_API Calls
 function calc_us_ppm(test, target, gal, active_pct, mass_ratio) {
   const response = ROOTPDX_POOL_API.calculate_us_product_dose_for_target_ppm.request({
     test_ppm: Number(test),
@@ -35,20 +53,25 @@ function calculate_us_muriatic_acid_dose_for_target_ph(test, target, gal, percen
   return ROOTPDX_POOL_API.ERROR_STATUS;
 }
 
-function format_oz(result) {
-  const oz = Number(result).toFixed(2);
-  const val_unit = {
-    val: oz,
-    unit: 'oz'
-  }
+function calc_us_drain_time_for_ppm(test, target, gal, active_pct, mass_ratio, gal_per_minute) {
+  const response = ROOTPDX_POOL_API.calculate_us_drain_time_for_target_ppm.request({
+    test_ppm: Number(test),
+    target_ppm: Number(target),
+    pool_volume_us_gallons: Number(gal),
+    pump_flow_us_gallons_per_minute: Number(gal_per_minute),
+    active_ingredient_percent: Number(active_pct),
+    relative_mass: Number(mass_ratio)
+  });
 
-  if (oz >= 64) {
-    const lb = Number(oz / 16).toFixed(2);
-    val_unit.val = lb;
-    val_unit.unit = "lb";
+  if (response.ok) {
+    return Number(response.data.drain_time_minutes);
+  } else {
+    console.log(response);
   }
-  return val_unit;
+  return ROOTPDX_POOL_API.ERROR_STATUS;
 }
+
+// #endregion
 
 // #region get
 function get_common_html_elements(pfx) {
@@ -78,6 +101,13 @@ function get_cl_html_elements() {
 
 function get_ch_html_elements() {
   return get_common_html_elements('ch');
+}
+
+function get_cya_html_elements() {
+  const o = get_common_html_elements('cya');
+  o.flow_rate = document.querySelector('#flow-rate');
+  console.log(o);
+  return o;
 }
 // #endregion
 
@@ -163,6 +193,37 @@ function calc_calcium_hardness() {
   o.result_unit.innerHTML = val_unit.unit;
 }
 
+function calc_cyanuric_acid_drain_volume() {
+  if (!form.checkValidity()) {
+    reset_cyanuric_acid_result
+    console.log(form);
+    return;
+  }
+
+  const o = get_cya_html_elements();
+
+  const minutes = calc_us_drain_time_for_ppm(
+    o.test.value,
+    o.target.value,
+    gallons.value,
+    o.active.value,
+    o.relative_mass.value,
+    o.flow_rate.value
+  );
+
+  console.log(minutes);
+  if (minutes == ROOTPDX_POOL_API.ERROR_STATUS) {
+    return;
+  }
+
+  const hours_part = String(Number(minutes / 60).toFixed(0));
+  const minutes_part = String(Number(minutes % 60).toFixed(0));
+  const formattedMinutes = String(minutes_part).padStart(2, "0");
+
+  o.result_value.innerHTML = hours_part + ":" + formattedMinutes;
+  o.result_unit.innerHTML = 'hh:mm';
+}
+
 function calc_ph() {
   if (!form.checkValidity()) {
     reset_ph_result();
@@ -195,10 +256,30 @@ function calculate() {
   calc_ph();
   calc_free_chlorine();
   calc_calcium_hardness();
+  calc_cyanuric_acid_drain_volume()
 }
 // #endregion
 
 // #region reset
+function reset_cyanuric_acid_result() {
+  const o = get_cya_html_elements();
+  o.result_value.innerHTML = '';
+  o.result_unit.innerHTML = '';
+}
+
+function reset_cyanuric_acid() {
+  const o = get_cya_html_elements();
+  const v = ROOTPDX_POOL_API.FORM_INITIAL_VALUES.cyanuric_acid;
+
+  o.test.value = v.test_ppm;
+  o.target.value = v.target_ppm;
+  o.active.value = v.active_ingredient_percent.toLocaleString(undefined, { maximumFractionDigits: 1 });
+  o.relative_mass.value = v.relative_mass.toLocaleString(undefined, { maximumFractionDigits: 4 });
+  o.flow_rate.value = v.pump_flow_us_gallons_per_minute;
+
+  reset_cyanuric_acid_result();
+}
+
 function reset_calcium_hardness_result() {
   const o = get_ch_html_elements();
   o.result_value.innerHTML = '';
@@ -277,6 +358,7 @@ function reset() {
   reset_ph();
   reset_cl();
   reset_calcium_hardness();
+  reset_cyanuric_acid();
   calculate();
 }
 

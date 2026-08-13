@@ -513,6 +513,8 @@
     cyanuric_acid: {
       test_ppm: 80,
       target_ppm: 40,
+      active_ingredient_percent: 100,
+      relative_mass: 1,
       pool_volume_us_gallons: 26000,
       pump_flow_us_gallons_per_minute: 40
     },
