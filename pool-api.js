@@ -60,15 +60,15 @@
   });
 
   const usCyaDrainTimeRequestTemplate = Object.freeze({
-    test_cya: 80,
-    target_cya: 40,
+    test_ppm: 80,
+    target_ppm: 40,
     pool_volume_us_gallons: 26000,
     pump_flow_us_gallons_per_minute: 40
   });
 
   const metricCyaDrainTimeRequestTemplate = Object.freeze({
-    test_cya: 80,
-    target_cya: 40,
+    test_ppm: 80,
+    target_ppm: 40,
     pool_volume_liters: 98420.706384,
     pump_flow_liters_per_minute: 151.41647136
   });
@@ -374,7 +374,7 @@
     if (!normalized.ok) return normalized;
 
     const request = normalized.value;
-    const requiredFields = ['test_cya', 'target_cya', volumeField, flowField];
+    const requiredFields = ['test_ppm', 'target_ppm', volumeField, flowField];
     const missingFields = requiredFields.filter(
       (field) => !Object.prototype.hasOwnProperty.call(request, field)
     );
@@ -400,8 +400,8 @@
     }
 
     const outOfRangeFields = [];
-    if (request.test_cya < 0) outOfRangeFields.push('test_cya');
-    if (request.target_cya < 0) outOfRangeFields.push('target_cya');
+    if (request.test_ppm < 0) outOfRangeFields.push('test_ppm');
+    if (request.target_ppm < 0) outOfRangeFields.push('target_ppm');
     if (request[volumeField] <= 0) outOfRangeFields.push(volumeField);
     if (request[flowField] <= 0) outOfRangeFields.push(flowField);
 
@@ -414,8 +414,8 @@
     }
 
     const drainFraction =
-      request.test_cya > request.target_cya && request.test_cya > 0
-        ? 1 - request.target_cya / request.test_cya
+      request.test_ppm > request.target_ppm && request.test_ppm > 0
+        ? 1 - request.target_ppm / request.test_ppm
         : 0;
     const poolVolumeLiters = volumeToLiters(request[volumeField]);
     const drainVolumeLiters = poolVolumeLiters * drainFraction;
@@ -511,8 +511,8 @@
     },
 
     cyanuric_acid: {
-      test_cya: 80,
-      target_cya: 40,
+      test_ppm: 80,
+      target_ppm: 40,
       pool_volume_us_gallons: 26000,
       pump_flow_us_gallons_per_minute: 40
     },
@@ -546,11 +546,11 @@
       metricMuriaticAcidRequestTemplate,
       calculateMetricMuriaticAcidDose
     ),
-    calculate_us_drain_time_for_target_cya: createOperation(
+    calculate_us_drain_time_for_target_ppm: createOperation(
       usCyaDrainTimeRequestTemplate,
       calculateUsCyaDrainTime
     ),
-    calculate_metric_drain_time_for_target_cya: createOperation(
+    calculate_metric_drain_time_for_target_ppm: createOperation(
       metricCyaDrainTimeRequestTemplate,
       calculateMetricCyaDrainTime
     )
