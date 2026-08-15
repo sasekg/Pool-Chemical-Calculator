@@ -109,6 +109,10 @@ function get_cya_html_elements() {
   console.log(o);
   return o;
 }
+
+function get_borate_html_elements() {
+  return get_common_html_elements('borate');
+}
 // #endregion
 
 // #region calc
@@ -251,12 +255,40 @@ function calc_ph() {
   o.result_unit.innerHTML = val_unit.unit;
 }
 
+function calc_borate() {
+  if (!form.checkValidity()) {
+    reset_borate_result();
+    console.log(form);
+    return;
+  }
+
+  const o = get_borate_html_elements();
+
+  const result = calc_us_ppm(
+    o.test.value,
+    o.target.value,
+    gallons.value,
+    o.active.value,
+    o.relative_mass.value
+  );
+
+  console.log(result);
+  if (result == ROOTPDX_POOL_API.ERROR_STATUS) {
+    return;
+  }
+
+  const val_unit = format_oz(result);
+  o.result_value.innerHTML = val_unit.val;
+  o.result_unit.innerHTML = val_unit.unit;
+}
+
 function calculate() {
   calc_total_alkalinity();
   calc_ph();
   calc_free_chlorine();
   calc_calcium_hardness();
-  calc_cyanuric_acid_drain_volume()
+  calc_cyanuric_acid_drain_volume();
+  calc_borate();
 }
 // #endregion
 
@@ -344,13 +376,32 @@ function reset_cl() {
   const o = get_cl_html_elements();
   const v = ROOTPDX_POOL_API.FORM_INITIAL_VALUES.free_chlorine;
 
-  o.test.value = v.test;
-  o.target.value = v.target;
+  o.test.value = v.test_ppm;
+  o.target.value = v.target_ppm;
   o.active.value = v.active_ingredient_percent;
   o.relative_mass.value = Number(v.relative_mass).toFixed(4);
 
   reset_cl_result();
 }
+
+function reset_borate_result() {
+  const html = get_borate_html_elements();
+  html.result_value.innerHTML = '';
+  html.result_unit.innerHTML = '';
+}
+
+function reset_borate() {
+  const o = get_borate_html_elements();
+  const v = ROOTPDX_POOL_API.FORM_INITIAL_VALUES.borate;
+
+  o.test.value = v.test_ppm;
+  o.target.value = v.target_ppm;
+  o.active.value = v.active_ingredient_percent;
+  o.relative_mass.value = Number(v.relative_mass).toFixed(4);
+
+  reset_borate_result();
+}
+
 
 function reset() {
   gallons.value = 10000;
@@ -359,6 +410,7 @@ function reset() {
   reset_cl();
   reset_calcium_hardness();
   reset_cyanuric_acid();
+  reset_borate();
   calculate();
 }
 

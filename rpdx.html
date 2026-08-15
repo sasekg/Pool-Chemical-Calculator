@@ -99,8 +99,8 @@
         </div>
         <div class="field">
           <output id="ta-result"
-                  for="gallons ta-test ta-target factor"
-                  aria-label="Sodium bicarbonate result"
+                  for="gallons ta-test ta-target ta-relative-mass"
+                  aria-label="Sodium bicarbonate for target total alkalinity"
                   aria-live="polite">
             <span id="ta-result-value"
                   class="result-value"></span>
@@ -165,8 +165,8 @@
         </div>
         <div class="field">
           <output id="ph-result"
-                  for="gallons ph-test ph-target factor"
-                  aria-label="Muriatic acid result"
+                  for="gallons ph-test ph-target ph-total-alkalinity"
+                  aria-label="Muriatic acid for target pH"
                   aria-live="polite">
             <span id="ph-result-value"
                   class="result-value"></span>
@@ -229,8 +229,8 @@
         </div>
         <div class="field">
           <output id="cl-result"
-                  for="gallons cl-test cl-target factor"
-                  aria-label="Free chlorine result"
+                  for="gallons cl-test cl-target cl-relative-mass"
+                  aria-label="Free chlorine for target ppm"
                   aria-live="polite">
             <span id="cl-result-value"
                   class="result-value"></span>
@@ -293,8 +293,8 @@
         </div>
         <div class="field">
           <output id="ch-result"
-                  for="gallons ch-test ch-target factor"
-                  aria-label="Calcium hardness result"
+                  for="gallons ch-test ch-target ch-relative-mass"
+                  aria-label="Calcium for target hardness"
                   aria-live="polite">
             <span id="ch-result-value"
                   class="result-value"></span>
@@ -309,7 +309,7 @@
         <div class="row-label">
           <span id="cya-label"
                 class="test-name">Cyanuric Acid</span>
-          <span class="chemical-name">[Drain Volume]</span>
+          <span class="chemical-name">[Replace Water]</span>
         </div>
         <div class="field">
           <label class="visually-hidden"
@@ -361,12 +361,78 @@
         </div>
         <div class="field">
           <output id="cya-result"
-                  for="gallons cya-test cya-target factor"
-                  aria-label="Water volume to remove"
+                  for="gallons cya-test cya-target cya-relative-mass"
+                  aria-label="Water volume to replace for target cya"
                   aria-live="polite">
             <span id="cya-result-value"
                   class="result-value"></span>
             <span id="cya-result-unit"
+                  class="unit"></span>
+          </output>
+        </div>
+      </div>
+      <div class="row"
+           role="group"
+           aria-labelledby="borate-label">
+        <div class="row-label">
+          <span id="borate-label"
+                class="test-name">Borate</span>
+          <span class="chemical-name">[Bioguard Optimizer]</span>
+        </div>
+        <div class="field">
+          <label class="visually-hidden"
+                 for="borate-test">Test (ppm)</label>
+          <input id="borate-test"
+                 name="borate-test"
+                 type="number"
+                 min="0"
+                 step="any"
+                 required>
+          <span class="unit">ppm</span>
+        </div>
+        <div class="field">
+          <label class="visually-hidden"
+                 for="borate-target">Target (ppm)</label>
+          <input id="borate-target"
+                 name="borate-target"
+                 type="number"
+                 min="0"
+                 step="any"
+                 required>
+          <span class="unit">ppm</span>
+        </div>
+        <div class="field"><label class="visually-hidden"
+                 for="borate-active">Active Ingredient % 0 to 100</label>
+          <input id="borate-active"
+                 name="borate-active"
+                 type="number"
+                 min="0"
+                 max="100"
+                 disabled
+                 step="any"
+                 required>
+          <span class="unit">%</span>
+        </div>
+        <div class="field"><label class="visually-hidden"
+                 for="borate-relative-mass">Relative Mass 0.00 to 1.00</label>
+          <input id="borate-relative-mass"
+                 name="borate-relative-mass"
+                 type="number"
+                 min="0"
+                 max="1"
+                 disabled
+                 step="any"
+                 required>
+          <span class="unit">M/H2O</span>
+        </div>
+        <div class="field">
+          <output id="borate-result"
+                  for="gallons borate-test borate-target flow-rate"
+                  aria-label="Add for target borate ppm"
+                  aria-live="polite">
+            <span id="borate-result-value"
+                  class="result-value"></span>
+            <span id="borate-result-unit"
                   class="unit"></span>
           </output>
         </div>

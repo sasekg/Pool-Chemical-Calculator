@@ -497,8 +497,8 @@
     },
 
     free_chlorine: {
-      test: 0.5,
-      target: 2.0,
+      test_ppm: 0.5,
+      target_ppm: 2.0,
       active_ingredient_percent: 100,
       relative_mass: RELATIVE_MASSES.chlorine_cal_hypo_to_free_chlorine
     },
