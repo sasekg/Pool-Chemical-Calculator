@@ -15,27 +15,48 @@
 <body>
   <main>
     <form id="calculator">
-      <div class="row volume">
-        <span></span>
-        <label class="visually-hidden"
-               for="gallons">Gallons</label>
-        <span class="volume-units-label">Gallons</span>
-        <input id="gallons"
-               name="gallons"
-               type="number"
-               min="1"
-               step="any"
-               required>
-                       <span></span>
-        <label class="visually-hidden"
-               for="flow-rate">Flow Rate</label>
-        <span class="volume-units-label">Flow Rate</span>
-        <input id="flow-rate"
-               name="flow-rate"
-               type="number"
-               min="0"
-               step="any"
-               required>
+      <div class="row shared-properties">
+        <span>
+        </span>
+        <div class="field">
+          <span class="top-field-info">Volume</span>
+          <label class="visually-hidden"
+                 for="water-volume">Water Volume</label>
+          <input id="water-volume"
+                 name="water-volume"
+                 type="number"
+                 value="0"
+                 min="0"
+                 step="any"
+                 required>
+          <span id="water-volume-unit" class="unit">Gallons</span>
+        </div>
+        <div class="field">
+          <span class="top-field-info">Flow</span>
+          <label class="visually-hidden"
+                 for="flow-rate">Flow Rate</label>
+          <input id="flow-rate"
+                 name="flow-rate"
+                 type="number"
+                 value="0"
+                 min="0"
+                 step="any"
+                 required>
+          <span id="flow-rate-unit" class="unit">Per/Min</span>
+        </div>
+        <div class="field">
+          <span class="top-field-info">Temp</span>
+          <label class="visually-hidden"
+                 for="temperature">Temperature</label>
+          <input id="temperature"
+                 name="temperature"
+                 type="number"
+                 value="70"
+                 min="0"
+                 step="any"
+                 required>
+          <span id="temperature-unit" class="unit">F or C</span>
+        </div>        
       </div>
       <div class="row heading">
         <span></span>
@@ -99,7 +120,7 @@
         </div>
         <div class="field">
           <output id="ta-result"
-                  for="gallons ta-test ta-target ta-relative-mass"
+                  for="water-volume ta-test ta-target ta-relative-mass"
                   aria-label="Sodium bicarbonate for target total alkalinity"
                   aria-live="polite">
             <span id="ta-result-value"
@@ -165,7 +186,7 @@
         </div>
         <div class="field">
           <output id="ph-result"
-                  for="gallons ph-test ph-target ph-total-alkalinity"
+                  for="water-volume ph-test ph-target ph-total-alkalinity"
                   aria-label="Muriatic acid for target pH"
                   aria-live="polite">
             <span id="ph-result-value"
@@ -229,7 +250,7 @@
         </div>
         <div class="field">
           <output id="cl-result"
-                  for="gallons cl-test cl-target cl-relative-mass"
+                  for="water-volume cl-test cl-target cl-relative-mass"
                   aria-label="Free chlorine for target ppm"
                   aria-live="polite">
             <span id="cl-result-value"
@@ -293,7 +314,7 @@
         </div>
         <div class="field">
           <output id="ch-result"
-                  for="gallons ch-test ch-target ch-relative-mass"
+                  for="water-volume ch-test ch-target ch-relative-mass"
                   aria-label="Calcium for target hardness"
                   aria-live="polite">
             <span id="ch-result-value"
@@ -361,7 +382,7 @@
         </div>
         <div class="field">
           <output id="cya-result"
-                  for="gallons cya-test cya-target cya-relative-mass"
+                  for="water-volume cya-test cya-target cya-relative-mass"
                   aria-label="Water volume to replace for target cya"
                   aria-live="polite">
             <span id="cya-result-value"
@@ -427,7 +448,7 @@
         </div>
         <div class="field">
           <output id="borate-result"
-                  for="gallons borate-test borate-target flow-rate"
+                  for="water-volume borate-test borate-target flow-rate"
                   aria-label="Add for target borate ppm"
                   aria-live="polite">
             <span id="borate-result-value"
