@@ -1,5 +1,5 @@
 const form = document.querySelector('#calculator');
-const gallons = document.querySelector('#gallons');
+const water_volume = document.querySelector('#water-volume');
 
 // #region utility
 function format_oz(result) {
@@ -128,7 +128,7 @@ function calc_total_alkalinity() {
   const result = calc_us_ppm(
     o.test.value,
     o.target.value,
-    gallons.value,
+    water_volume.value,
     o.active.value,
     o.relative_mass.value
   );
@@ -155,7 +155,7 @@ function calc_free_chlorine() {
   const result = calc_us_ppm(
     o.test.value,
     o.target.value,
-    gallons.value,
+    water_volume.value,
     o.active.value,
     o.relative_mass.value
   );
@@ -182,7 +182,7 @@ function calc_calcium_hardness() {
   const result = calc_us_ppm(
     o.test.value,
     o.target.value,
-    gallons.value,
+    water_volume.value,
     o.active.value,
     o.relative_mass.value
   );
@@ -209,7 +209,7 @@ function calc_cyanuric_acid_drain_volume() {
   const minutes = calc_us_drain_time_for_ppm(
     o.test.value,
     o.target.value,
-    gallons.value,
+    water_volume.value,
     o.active.value,
     o.relative_mass.value,
     o.flow_rate.value
@@ -240,7 +240,7 @@ function calc_ph() {
   const result = calculate_us_muriatic_acid_dose_for_target_ph(
     o.test.value,
     o.target.value,
-    gallons.value,
+    water_volume.value,
     o.active.value,
     o.total_alkalinity.value
   );
@@ -267,7 +267,7 @@ function calc_borate() {
   const result = calc_us_ppm(
     o.test.value,
     o.target.value,
-    gallons.value,
+    water_volume.value,
     o.active.value,
     o.relative_mass.value
   );
@@ -404,7 +404,7 @@ function reset_borate() {
 
 
 function reset() {
-  gallons.value = 10000;
+  water_volume.value = 10000;
   reset_total_alkalinity();
   reset_ph();
   reset_cl();
