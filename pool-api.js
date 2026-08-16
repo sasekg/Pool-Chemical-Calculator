@@ -10,6 +10,42 @@
   const REFERENCE_TOTAL_ALKALINITY_PPM = 100;
   const ERROR_STATUS = "ERROR_STATUS";
 
+  // #region Formulas
+
+  const cyaCorrectionFactorForPH = {
+    7.0: 0.22,
+    7.2: 0.26,
+    7.4: 0.30,
+    7.6: 0.33,
+    7.8: 0.35,
+    8.0: 0.36
+  };
+
+  function calcCYACorrectionFactorForPH(ph) {
+    const keys = Object.keys(cyaCorrectionFactorForPH);
+    const maxKeyIndex = keys.length-1;
+    if(ph < keys[0]) {
+      return cyaCorrectionFactorForPH[0];
+    } else if(ph > keys[maxKeyIndex]) {
+      return cyaCorrectionFactorForPH[maxKeyIndex];
+    } else {
+      for(key in cyaCorrectionFactorForPH) {
+        if(key >= ph){
+          return cyaCorrectionFactorForPH[key];
+        }
+      }
+    }
+    return keys[maxKeyIndex];
+  }
+
+  function calcTotalAlkalinityWithPHandCYA(ta, ph, cya) {
+    const correctionFactor = calcCYACorrectionFactorForPH(ph);
+    return ta - (cya * correctionFactor);
+  }
+
+  // #endregion
+
+  // #region Request Templates 
   // Dimensionless reference values expressed as test ppm produced per ppm of
   // pure product. Product purity belongs in active_ingredient_percent.
   const RELATIVE_MASSES = Object.freeze({
@@ -72,6 +108,8 @@
     pool_volume_liters: 98420.706384,
     pump_flow_liters_per_minute: 151.41647136
   });
+
+  // #endregion
 
   // #region Pool calculations
 
@@ -171,7 +209,7 @@
       0
     );
     const effectiveTestResponse =
-      (request.active_ingredient_percent/100.0) *
+      (request.active_ingredient_percent / 100.0) *
       request.relative_mass;
     const requiredProductPpm = desiredTestChangePpm / effectiveTestResponse;
     const poolVolumeLiters = volumeToLiters(request[volumeField]);
@@ -529,7 +567,7 @@
 
   const ROOTPDX_POOL_API = Object.freeze({
     version: '0.1.0',
-    RELATIVE_MASSES: RELATIVE_MASSES, 
+    RELATIVE_MASSES: RELATIVE_MASSES,
     FORM_INITIAL_VALUES: FORM_INITIAL_VALUES,
     ERROR_STATUS: ERROR_STATUS,
     calculate_us_product_dose_for_target_ppm: createOperation(
