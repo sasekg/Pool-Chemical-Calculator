@@ -51,7 +51,8 @@ main {
       &.shared-properties {
         margin: 20px auto;
 
-        input {
+        input,
+        output {
           padding-top: 18px;
           padding-bottom: 13px;
         }

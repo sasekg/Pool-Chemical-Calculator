@@ -639,7 +639,12 @@
     calculate_metric_drain_time_for_target_ppm: createOperation(
       metricCyaDrainTimeRequestTemplate,
       calculateMetricCyaDrainTime
-    )
+    ),
+    calcTotalAlkalinityWithPHandCYA: calcTotalAlkalinityWithPHandCYA,
+    calcActiveChlorineWithCYA: calcActiveChlorineWithCYA,
+    calcActiveChlorineWithoutCYA: calcActiveChlorineWithoutCYA,
+    calcMinimumFCbyCYA: calcMinimumFCbyCYA,
+    calcMetricLSI: calcLSI
   });
 
   if (typeof module !== 'undefined' && module.exports) {

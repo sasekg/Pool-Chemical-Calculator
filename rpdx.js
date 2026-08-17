@@ -1,5 +1,7 @@
 const form = document.querySelector('#calculator');
 const water_volume = document.querySelector('#water-volume');
+const flow_rate = document.querySelector('#flow-rate');
+const temperature = document.querySelector('#temperature');
 
 // #region utility
 function format_oz(result) {
@@ -15,6 +17,10 @@ function format_oz(result) {
     val_unit.unit = "lb";
   }
   return val_unit;
+}
+
+function convertFtoC(fahrenheit) {
+  return (fahrenheit - 32) * 5 / 9;
 }
 // #endregion
 
@@ -91,7 +97,7 @@ function get_ta_html_elements() {
 
 function get_ph_html_elements() {
   const o = get_common_html_elements('ph');
-  o.total_alkalinity = document.querySelector("#ph-total-alkalinity");
+  o.total_alkalinity_for_ph_calculation = document.querySelector("#ph-total-alkalinity");
   return o;
 }
 
@@ -105,13 +111,50 @@ function get_ch_html_elements() {
 
 function get_cya_html_elements() {
   const o = get_common_html_elements('cya');
-  o.flow_rate = document.querySelector('#flow-rate');
+  o.flow_rate = flow_rate;
   console.log(o);
   return o;
 }
 
 function get_borate_html_elements() {
   return get_common_html_elements('borate');
+}
+
+function get_html_elements() {
+  const e = {
+    volume: water_volume,
+    flow_rate: flow_rate,
+    temperature: temperature,
+    ta: get_ta_html_elements(),
+    ph: get_ph_html_elements(),
+    fc: get_cl_html_elements(),
+    ch: get_ch_html_elements(),
+    cya: get_cya_html_elements(),
+    borate: get_borate_html_elements(),
+    cya_adjusted: {
+      ta_result: document.querySelector('#cya-adjusted-ta-result-value'),
+      fc_result: document.querySelector('#cya-adjusted-fc-result-value'),
+      min_fc_result: document.querySelector('#cya-adjusted-min-fc-result-value'), 
+    },
+    lsi_result: document.querySelector('#calculated-lsi-result-value') 
+  }
+  return e;
+}
+
+function get_input_values() {
+  const o = get_html_elements();
+  const values = {
+    volume: o.volume.value,
+    flow_rate: o.flow_rate.value,
+    temperature: o.temperature.value,
+    ta_test: o.ta.test.value, 
+    ph_test: o.ph.test.value,
+    fc_test: o.fc.test.value,
+    ch_test: o.ch.test.value,
+    cya_test: o.cya.test.value,
+    borate_test: o.borate.test.value
+  }
+  return values;
 }
 // #endregion
 
@@ -242,7 +285,7 @@ function calc_ph() {
     o.target.value,
     water_volume.value,
     o.active.value,
-    o.total_alkalinity.value
+    o.total_alkalinity_for_ph_calculation.value
   );
 
   console.log(result);
@@ -282,6 +325,40 @@ function calc_borate() {
   o.result_unit.innerHTML = val_unit.unit;
 }
 
+function calcTotalAlkalinityWithPHandCYA() {
+  const o = get_input_values();
+  const v = ROOTPDX_POOL_API.calcTotalAlkalinityWithPHandCYA(o.ta_test, o.ph_test, o.cya_test);
+  const e = document.querySelector('#cya-adjusted-ta-result-value');
+  e.innerHTML = Number(v).toFixed(2);
+}
+
+function calcActiveChlorineWithCYA() {
+  const o = get_input_values();
+  const v = ROOTPDX_POOL_API.calcActiveChlorineWithCYA(o.fc_test, o.cya_test);
+  const e = document.querySelector('#cya-adjusted-fc-result-value');
+  e.innerHTML = Number(v).toFixed(4);
+}
+
+function calcMinimumFCbyCYA() {
+  const o = get_input_values();
+  const v = ROOTPDX_POOL_API.calcMinimumFCbyCYA(o.cya_test);
+  const e = document.querySelector('#cya-adjusted-min-fc-result-value');
+  e.innerHTML = Number(v).toFixed(4);
+}
+
+function calcMetricLSI() {
+  const o = get_input_values();
+  const v = ROOTPDX_POOL_API.calcMetricLSI(
+    o.ph_test, 
+    convertFtoC(o.temperature),
+    o.ch_test,
+    o.ta_test,
+    12.1,
+    o.cya_test);
+  const e = document.querySelector('#calculated-lsi-result-value');
+  e.innerHTML = Number(v).toFixed(4);
+}
+
 function calculate() {
   calc_total_alkalinity();
   calc_ph();
@@ -289,6 +366,10 @@ function calculate() {
   calc_calcium_hardness();
   calc_cyanuric_acid_drain_volume();
   calc_borate();
+  calcTotalAlkalinityWithPHandCYA();
+  calcActiveChlorineWithCYA();
+  calcMinimumFCbyCYA();
+  calcMetricLSI();
 }
 // #endregion
 
@@ -361,7 +442,7 @@ function reset_ph() {
   o.test.value = v.test_ph;
   o.target.value = v.target_ph;
   o.active.value = v.percent_hcl;
-  o.total_alkalinity.value = v.total_alkalinity_ppm;
+  o.total_alkalinity_for_ph_calculation.value = v.total_alkalinity_ppm;
 
   reset_ph_result();
 }

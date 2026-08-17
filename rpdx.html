@@ -29,7 +29,8 @@
                  min="0"
                  step="any"
                  required>
-          <span id="water-volume-unit" class="unit">Gallons</span>
+          <span id="water-volume-unit"
+                class="unit">Gallons</span>
         </div>
         <div class="field">
           <span class="top-field-info">Flow</span>
@@ -42,7 +43,8 @@
                  min="0"
                  step="any"
                  required>
-          <span id="flow-rate-unit" class="unit">Per/Min</span>
+          <span id="flow-rate-unit"
+                class="unit">Per/Min</span>
         </div>
         <div class="field">
           <span class="top-field-info">Temp</span>
@@ -55,8 +57,61 @@
                  min="0"
                  step="any"
                  required>
-          <span id="temperature-unit" class="unit">F or C</span>
-        </div>        
+          <span id="temperature-unit"
+                class="unit">F or C</span>
+        </div>
+      </div>
+      <div class="row shared-properties">
+        <span>
+        </span>
+        <div class="field">
+          <span class="top-field-info">TA</span>
+          <output id="cya-adjusted-ta-result"
+                  for="ph-test ta-test cya-test"
+                  aria-label="CYA adjusted alkalinity"
+                  aria-live="polite">
+            <span id="cya-adjusted-ta-result-value"
+                  class="result-value">-</span>
+            <span id="cya-adjusted-ta-result-unit"
+                  class="unit">CYA Adj</span>
+          </output>
+        </div>
+        <div class="field">
+          <span class="top-field-info">Act CL</span>
+          <output id="cya-adjusted-fc"
+                  for="fc-test cya-test"
+                  aria-label="CYA adjusted active chlorine"
+                  aria-live="polite">
+            <span id="cya-adjusted-fc-result-value"
+                  class="result-value">-</span>
+            <span id="cya-adjusted-fc-result-unit"
+                  class="unit">CYA Adj</span>
+          </output>
+        </div>
+        <div class="field">
+          <span class="top-field-info">Min FC</span>
+          <output id="cya-adjusted-min-fc"
+                  for="fc-test cya-test"
+                  aria-label="CYA adjusted recommended minimum free chlorine"
+                  aria-live="polite">
+            <span id="cya-adjusted-min-fc-result-value"
+                  class="result-value">-</span>
+            <span id="cya-adjusted-min-fc-result-unit"
+                  class="unit">CYA Adj</span>
+          </output>
+        </div>
+        <div class="field">
+          <span class="top-field-info">LSI</span>
+          <output id="calculated-lsi"
+                  for="fc-test cya-test ph-test ta-test temperature"
+                  aria-label=" Langelier Saturation Index (LSI)"
+                  aria-live="polite">
+            <span id="calculated-lsi-result-value"
+                  class="result-value">-</span>
+            <span id="calculated-lsi-result-unit"
+                  class="unit">balance</span>
+          </output>
+        </div>
       </div>
       <div class="row heading">
         <span></span>
