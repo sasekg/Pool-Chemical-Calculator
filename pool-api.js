@@ -22,20 +22,23 @@
   };
 
   function calcCYACorrectionFactorForPH(ph) {
-    const keys = Object.keys(cyaCorrectionFactorForPH);
-    const maxKeyIndex = keys.length - 1;
-    if (ph < keys[0]) {
-      return cyaCorrectionFactorForPH[0];
-    } else if (ph > keys[maxKeyIndex]) {
-      return cyaCorrectionFactorForPH[maxKeyIndex];
-    } else {
-      for (key in cyaCorrectionFactorForPH) {
-        if (key >= ph) {
-          return cyaCorrectionFactorForPH[key];
-        }
-      }
-    }
-    return keys[maxKeyIndex];
+    const phValues = Object.keys(cyaCorrectionFactorForPH)
+      .map(Number)
+      .sort((firstPH, secondPH) => firstPH - secondPH);
+    const minimumPH = phValues[0];
+    const maximumPH = phValues[phValues.length - 1];
+
+    if (ph <= minimumPH) return cyaCorrectionFactorForPH[minimumPH];
+    if (ph >= maximumPH) return cyaCorrectionFactorForPH[maximumPH];
+
+    const upperIndex = phValues.findIndex((tablePH) => tablePH >= ph);
+    const lowerPH = phValues[upperIndex - 1];
+    const upperPH = phValues[upperIndex];
+    const lowerFactor = cyaCorrectionFactorForPH[lowerPH];
+    const upperFactor = cyaCorrectionFactorForPH[upperPH];
+    const interpolationRatio = (ph - lowerPH) / (upperPH - lowerPH);
+
+    return lowerFactor + (upperFactor - lowerFactor) * interpolationRatio;
   }
 
   function calcTotalAlkalinityWithPHandCYA(ta, ph, cya) {
@@ -59,6 +62,32 @@
   function calcMinimumFCbyCYA(cya) {
     return cya * 0.075;
   }
+
+  function calcLSI(
+    ph,
+    waterTemperatureCelsius,
+    calciumHardness,
+    totalAlkalinity,
+    totalDissolvedSolids,
+    cya = 0
+  ) {
+    const correctedAlkalinity = calcTotalAlkalinityWithPHandCYA(
+      totalAlkalinity,
+      ph,
+      cya
+    );
+    const tdsFactor = (Math.log10(totalDissolvedSolids) - 1) / 10;
+    const temperatureFactor =
+      -13.12 * Math.log10(waterTemperatureCelsius + 273.15) + 34.55;
+    const calciumFactor = Math.log10(calciumHardness) - 0.4;
+    const alkalinityFactor = Math.log10(correctedAlkalinity);
+    const saturationPH =
+      9.3 + tdsFactor + temperatureFactor - calciumFactor - alkalinityFactor;
+
+    return ph - saturationPH;
+  }
+
+
 
   // #endregion
 
