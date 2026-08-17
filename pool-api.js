@@ -23,14 +23,14 @@
 
   function calcCYACorrectionFactorForPH(ph) {
     const keys = Object.keys(cyaCorrectionFactorForPH);
-    const maxKeyIndex = keys.length-1;
-    if(ph < keys[0]) {
+    const maxKeyIndex = keys.length - 1;
+    if (ph < keys[0]) {
       return cyaCorrectionFactorForPH[0];
-    } else if(ph > keys[maxKeyIndex]) {
+    } else if (ph > keys[maxKeyIndex]) {
       return cyaCorrectionFactorForPH[maxKeyIndex];
     } else {
-      for(key in cyaCorrectionFactorForPH) {
-        if(key >= ph){
+      for (key in cyaCorrectionFactorForPH) {
+        if (key >= ph) {
           return cyaCorrectionFactorForPH[key];
         }
       }
@@ -41,6 +41,23 @@
   function calcTotalAlkalinityWithPHandCYA(ta, ph, cya) {
     const correctionFactor = calcCYACorrectionFactorForPH(ph);
     return ta - (cya * correctionFactor);
+  }
+
+  // active HOCl
+  function calcActiveChlorineWithCYA(fc, cya) {
+    const EQUILIBRIUM_CONSTANT = 0.31;
+    const MOLECULAR_WEIGHT_RATIO = 1.8;
+    return (EQUILIBRIUM_CONSTANT * fc) / (cya - (MOLECULAR_WEIGHT_RATIO * fc));
+  }
+
+  // active HOCl
+  function calcActiveChlorineWithoutCYA(fc, ph) {
+    const PKA = 7.53;
+    return fc / (1 + Math.pow(10, (ph - PKA)));
+  }
+
+  function calcMinimumFCbyCYA(cya) {
+    return cya * 0.075;
   }
 
   // #endregion
