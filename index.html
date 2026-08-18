@@ -4,458 +4,518 @@
   <meta charset="utf-8">
   <meta name="viewport"
         content="width=device-width, initial-scale=1">
-  <title>Poolside — Chemical Calculator</title>
-  <meta name="description"
-        content="Calculate pool chemical doses from your current and target water levels.">
-  <style>
-    :root {
-      --rootpdx-blue: #1683ff;
-      --rootpdx-black: #030609;
-      --rootpdx-dim: #0c61bd;
-      --rootpdx-trim: #4d4d4d;
-
-      color: var(--rootpdx-blue);
-      background-color: var(--rootpdx-black);
-      font-family:
-        ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", monospace;
-      color-scheme: dark;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      min-width: 320px;
-      background: var(--rootpdx-black);
-      color: var(--rootpdx-blue);
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      line-height: 1.45;
-    }
-
-    button,
-    input {
-      font: inherit;
-    }
-
-    input {
-      color: var(--rootpdx-blue);
-      background: var(--rootpdx-black);
-      border: 1px solid var(--rootpdx-trim);
-      min-height: 41px;
-    }
-
-    input[type="number"] {
-      appearance: textfield;
-    }
-
-    input[type="number"]::-webkit-inner-spin-button,
-    input[type="number"]::-webkit-outer-spin-button {
-      appearance: none;
-      margin: 0;
-    }
-
-    .shell {
-      width: 525px;
-      margin: 0 auto;
-
-      .workspace {
-        display: flex;
-        gap: 24px;
-        align-items: start;
-
-        form.panel {
-
-          .suffix {
-            position: absolute;
-            top: 50%;
-            right: 14px;
-            transform: translateY(-50%);
-            font-size: 12px;
-            font-weight: 700;
-            pointer-events: none;
-          }
-
-          input {
-            width: 100%;
-            text-align: right;
-          }
-
-          .volume-wrap {
-            padding: 22px 28px;
-
-            .volume-row {
-              display: grid;
-              grid-template-columns: 120px repeat(3, 76px) 67px;
-              gap: 12px;
-              align-items: center;
-
-              .label-wrap {
-
-                label {
-                  font-size: 14px;
-                  font-weight: 800;
-                }
-
-                small {
-                  display: block;
-                  margin-top: 2px;
-                  font-size: 11px;
-                  font-weight: 550;
-                }
-              }
-
-              .volume-control {
-                position: relative;
-
-                input {
-                  width: 100%;
-                  text-align: center;
-                }
-              }
-            }
-          }
-
-          .metric-head,
-          .metric-row {
-            display: grid;
-            grid-template-columns: 120px repeat(3, 76px) 67px;
-            gap: 12px;
-            align-items: center;
-          }
-
-          .metric-head {
-            padding: 15px 28px 9px;
-            color: var(--muted);
-            font-size: 10px;
-            font-weight: 800;
-            letter-spacing: .08em;
-            text-transform: uppercase;
-
-            span:first-child {
-              text-align: left;
-            }
-
-            span {
-              text-align: center;
-            }
-
-            span:last-child {
-              text-align: right;
-            }
-          }
-
-          .metric-row {
-            padding: 13px 28px;
-
-            .metric-name {
-              font-size: 14px;
-              font-weight: 800;
-
-              small {
-                display: block;
-                margin-top: 2px;
-                font-size: 11px;
-                font-weight: 550;
-              }
-            }
-
-            .compact-field {
-              position: relative;
-              text-align: right;
-            }
-
-            .compact-field input {
-              padding-right: 36px;
-            }
-
-            .compact-field .suffix {
-              right: 10px;
-              font-size: 10px;
-            }
-
-            .dose {
-              text-align: right;
-              font-size: 17px;
-              font-weight: 850;
-              letter-spacing: -.02em;
-            }
-
-            .dose small {
-              display: block;
-              font-size: 10px;
-              font-weight: 650;
-              letter-spacing: 0;
-            }
-          }
-        }
-      }
-
-      .form-actions {
-        display: flex;
-        justify-content: center;
-        padding: 20px 28px 26px;
-
-        .reset {
-          border: 0;
-          background: transparent;
-          color: var(--rootpdx-dim);
-          cursor: pointer;
-          font-size: 12px;
-          font-weight: 800;
-
-          &:hover {
-            text-decoration: underline;
-          }
-        }
-      }
-
-
-      .summary {
-        padding: 0px 24px;
-        /* color: #42606b; */
-        font-size: 11px;
-        line-height: 1.5;
-      }
-    }
-
-
-    @media (max-width: 830px) {
-      .workspace {
-        grid-template-columns: 1fr;
-      }
-
-      .results {
-        position: static;
-      }
-    }
-
-    @media (max-width: 590px) {
-      .shell {
-        width: min(100% - 24px, 1180px);
-      }
-
-      .panel-head,
-      .volume-wrap,
-      .metric-row,
-      .metric-head {
-        padding-left: 18px;
-        padding-right: 18px;
-      }
-
-      .volume-row {
-        align-items: stretch;
-        flex-direction: column;
-      }
-
-      .volume-control {
-        width: 100%;
-      }
-
-      .metric-head {
-        display: none;
-      }
-
-      .metric-row {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 8px;
-      }
-
-      .metric-name {
-        grid-column: 1 / -1;
-        margin: 2px 0 2px;
-      }
-
-      .compact-field::before {
-        display: block;
-        margin-bottom: 5px;
-        font-size: 9px;
-        font-weight: 800;
-        letter-spacing: .06em;
-        text-transform: uppercase;
-        content: attr(data-label);
-      }
-
-      .compact-field input {
-        padding: 8px;
-        min-height: 40px;
-      }
-
-      .compact-field .suffix {
-        display: none;
-      }
-    }
-  </style>
+  <title>Pool Chemical Calculator</title>
+  <link rel="stylesheet"
+        href="reset.css">
+  <link rel="stylesheet"
+        href="rootpdx-vars.css">
+  <link rel="stylesheet"
+        href="rpdx.css">
 </head>
 <body>
-  <main class="shell">
-    <section class="workspace"
-             aria-label="Pool chemical calculator">
-      <form class="panel"
-            id="calculator">
-        <div class="volume-wrap">
-          <div class="volume-row">
-            <div class="label-wrap"><label for="volume">POOL VOLUME</label>
-              <small>gal</small>
-            </div>
-            <div class="volume-control"><input id="volume"
-                     type="number"
-                     min="0"
-                     step="1000"
-                     value="26000"
-                     required></div>
-          </div>
+  <main>
+    <form id="calculator">
+      <div class="row shared-properties">
+        <span>
+        </span>
+        <div class="field">
+          <span class="top-field-info">Volume</span>
+          <label class="visually-hidden"
+                 for="water-volume">Water Volume</label>
+          <input id="water-volume"
+                 name="water-volume"
+                 type="number"
+                 value="0"
+                 min="0"
+                 step="any"
+                 required>
+          <span id="water-volume-unit"
+                class="unit">Gallons</span>
         </div>
-        <div class="metric-head"><span>Measurement</span><span>Current</span><span>Target</span><span>Dose / step*</span><span>Add</span></div>
-        <div id="metricRows"></div>
-        <div class="form-actions"><button class="reset"
-                  type="button"
-                  id="resetButton">Reset</button></div>
-      </form>
-    </section>
-    <div class="summary">
-      <strong>How dosing works</strong>
-      <br>Enter the chemical mass needed per 10,000 gallons for one step: 0.1 for pH or 10 ppm for every other reading.
-    </div>
+        <div class="field">
+          <span class="top-field-info">Flow</span>
+          <label class="visually-hidden"
+                 for="flow-rate">Flow Rate</label>
+          <input id="flow-rate"
+                 name="flow-rate"
+                 type="number"
+                 value="0"
+                 min="0"
+                 step="any"
+                 required>
+          <span id="flow-rate-unit"
+                class="unit">Per/Min</span>
+        </div>
+        <div class="field">
+          <span class="top-field-info">Temp</span>
+          <label class="visually-hidden"
+                 for="temperature">Temperature</label>
+          <input id="temperature"
+                 name="temperature"
+                 type="number"
+                 value="70"
+                 min="0"
+                 step="any"
+                 required>
+          <span id="temperature-unit"
+                class="unit">F or C</span>
+        </div>
+      </div>
+      <div class="row shared-properties">
+        <span>
+        </span>
+        <div class="field">
+          <span class="top-field-info">TA</span>
+          <output id="cya-adjusted-ta-result"
+                  for="ph-test ta-test cya-test"
+                  aria-label="CYA adjusted alkalinity"
+                  aria-live="polite">
+            <span id="cya-adjusted-ta-result-value"
+                  class="result-value">-</span>
+            <span id="cya-adjusted-ta-result-unit"
+                  class="unit">CYA Adj</span>
+          </output>
+        </div>
+        <div class="field">
+          <span class="top-field-info">Act CL</span>
+          <output id="cya-adjusted-fc"
+                  for="fc-test cya-test"
+                  aria-label="CYA adjusted active chlorine"
+                  aria-live="polite">
+            <span id="cya-adjusted-fc-result-value"
+                  class="result-value">-</span>
+            <span id="cya-adjusted-fc-result-unit"
+                  class="unit">CYA Adj</span>
+          </output>
+        </div>
+        <div class="field">
+          <span class="top-field-info">Min FC</span>
+          <output id="cya-adjusted-min-fc"
+                  for="fc-test cya-test"
+                  aria-label="CYA adjusted recommended minimum free chlorine"
+                  aria-live="polite">
+            <span id="cya-adjusted-min-fc-result-value"
+                  class="result-value">-</span>
+            <span id="cya-adjusted-min-fc-result-unit"
+                  class="unit">CYA Adj</span>
+          </output>
+        </div>
+        <div class="field">
+          <span class="top-field-info">LSI</span>
+          <output id="calculated-lsi"
+                  for="fc-test cya-test ph-test ta-test temperature"
+                  aria-label=" Langelier Saturation Index (LSI)"
+                  aria-live="polite">
+            <span id="calculated-lsi-result-value"
+                  class="result-value">-</span>
+            <span id="calculated-lsi-result-unit"
+                  class="unit">balance</span>
+          </output>
+        </div>
+      </div>
+      <div class="row heading">
+        <span></span>
+        <span>Test</span>
+        <span>Target</span>
+        <span class="active"><span class="col-name">Active</span><span class="col-name">%</span><span class="col-symbol">0 to 100</span></span>
+        <span class="relative-mass"><span class="col-name">Relative</span><span class="col-name">Mass</span><span class="col-symbol">0 to 1</span></span>
+        <span>DO</span>
+      </div>
+      <div class="row"
+           role="group"
+           aria-labelledby="test-name chemical-name">
+        <div class="row-label">
+          <span id="ta-label"
+                class="test-name">Total Alkalinity</span>
+          <span class="chemical-name">[Sodium bicarbonate]</span>
+        </div>
+        <div class="field">
+          <label class="visually-hidden"
+                 for="ta-test">Test (ppm)</label>
+          <input id="ta-test"
+                 name="ta-test"
+                 type="number"
+                 min="0"
+                 step="any"
+                 required>
+          <span class="unit">ppm</span>
+        </div>
+        <div class="field">
+          <label class="visually-hidden"
+                 for="ta-target">Target (ppm)</label>
+          <input id="ta-target"
+                 name="ta-target"
+                 type="number"
+                 min="0"
+                 step="any"
+                 required>
+          <span class="unit">ppm</span>
+        </div>
+        <div class="field"> <label class="visually-hidden"
+                 for="ta-active">Active Ingredient % 0 to 100</label>
+          <input id="ta-active"
+                 name="ta-active"
+                 type="number"
+                 min="0"
+                 max="100"
+                 step="any"
+                 required>
+          <span class="unit">%</span>
+        </div>
+        <div class="field"><label class="visually-hidden"
+                 for="ta-relative-mass">Relative Mass 0.00 to 1.00</label>
+          <input id="ta-relative-mass"
+                 name="ta-relative-mass"
+                 type="number"
+                 min="0"
+                 max="1"
+                 step="any"
+                 required>
+          <span class="unit">M/H2O</span>
+        </div>
+        <div class="field">
+          <output id="ta-result"
+                  for="water-volume ta-test ta-target ta-relative-mass"
+                  aria-label="Sodium bicarbonate for target total alkalinity"
+                  aria-live="polite">
+            <span id="ta-result-value"
+                  class="result-value"></span>
+            <span id="ta-result-unit"
+                  class="unit"></span>
+          </output>
+        </div>
+      </div>
+      <div class="row"
+           role="group"
+           aria-labelledby="ph-label">
+        <div class="row-label">
+          <span id="ph-label"
+                class="test-name">pH</span>
+          <span class="chemical-name">[Muriatic acid]</span>
+        </div>
+        <div class="field">
+          <label class="visually-hidden"
+                 for="ph-test">Test (pH)</label>
+          <input id="ph-test"
+                 name="ph-test"
+                 type="number"
+                 min="0"
+                 step="any"
+                 required>
+          <span class="unit">pH</span>
+        </div>
+        <div class="field">
+          <label class="visually-hidden"
+                 for="ph-target">Target (pH)</label>
+          <input id="ph-target"
+                 name="ph_target"
+                 type="number"
+                 min="0"
+                 step="any"
+                 required>
+          <span class="unit">pH</span>
+        </div>
+        <div class="field">
+          <label class="visually-hidden"
+                 for="ph-active">Active Ingredient Fraction (%)</label>
+          <input id="ph-active"
+                 name="ph-active"
+                 type="number"
+                 min="0"
+                 max="100"
+                 step="any"
+                 required>
+          <span class="unit">hcl<span class="symbol">%</span></span>
+        </div>
+        <div class="field">
+          <label class="visually-hidden"
+                 for="ph-total-alkalinity">Total Alkalinity value for Muriatic acid calculation</label>
+          <input id="ph-total-alkalinity"
+                 name="ph-total-alkalinity"
+                 type="number"
+                 min="0"
+                 max="200"
+                 step="any"
+                 required>
+          <span class="unit">TA ppm</span>
+        </div>
+        <div class="field">
+          <output id="ph-result"
+                  for="water-volume ph-test ph-target ph-total-alkalinity"
+                  aria-label="Muriatic acid for target pH"
+                  aria-live="polite">
+            <span id="ph-result-value"
+                  class="result-value"></span>
+            <span id="ph-result-unit"
+                  class="unit"></span>
+          </output>
+        </div>
+      </div>
+      <div class="row"
+           role="group"
+           aria-labelledby="cl-label">
+        <div class="row-label">
+          <span id="cl-label"
+                class="test-name">Free Chlorine</span>
+          <span class="chemical-name">[Cal-Hypo]</span>
+        </div>
+        <div class="field">
+          <label class="visually-hidden"
+                 for="cl-test">Test (ppm)</label>
+          <input id="cl-test"
+                 name="cl-test"
+                 type="number"
+                 min="0"
+                 step="any"
+                 required>
+          <span class="unit">ppm</span>
+        </div>
+        <div class="field">
+          <label class="visually-hidden"
+                 for="cl-target">Target (ppm)</label>
+          <input id="cl-target"
+                 name="cl-target"
+                 type="number"
+                 min="0"
+                 step="any"
+                 required>
+          <span class="unit">ppm</span>
+        </div>
+        <div class="field"> <label class="visually-hidden"
+                 for="cl-active">Active Ingredient % 0 to 100</label>
+          <input id="cl-active"
+                 name="cl-active"
+                 type="number"
+                 min="0"
+                 max="100"
+                 step="any"
+                 required>
+          <span class="unit">%</span>
+        </div>
+        <div class="field"><label class="visually-hidden"
+                 for="cl-relative-mass">Relative Mass 0.00 to 1.00</label>
+          <input id="cl-relative-mass"
+                 name="cl-relative-mass"
+                 type="number"
+                 min="0"
+                 max="1"
+                 step="any"
+                 required>
+          <span class="unit">M/H2O</span>
+        </div>
+        <div class="field">
+          <output id="cl-result"
+                  for="water-volume cl-test cl-target cl-relative-mass"
+                  aria-label="Free chlorine for target ppm"
+                  aria-live="polite">
+            <span id="cl-result-value"
+                  class="result-value"></span>
+            <span id="cl-result-unit"
+                  class="unit"></span>
+          </output>
+        </div>
+      </div>
+      <div class="row"
+           role="group"
+           aria-labelledby="ch-label">
+        <div class="row-label">
+          <span id="ch-label"
+                class="test-name">Calcium Hardness</span>
+          <span class="chemical-name">[chloride dihydrate]</span>
+        </div>
+        <div class="field">
+          <label class="visually-hidden"
+                 for="ch-test">Test (ppm)</label>
+          <input id="ch-test"
+                 name="ch-test"
+                 type="number"
+                 min="0"
+                 step="any"
+                 required>
+          <span class="unit">ppm</span>
+        </div>
+        <div class="field">
+          <label class="visually-hidden"
+                 for="ch-target">Target (ppm)</label>
+          <input id="ch-target"
+                 name="ch-target"
+                 type="number"
+                 min="0"
+                 step="any"
+                 required>
+          <span class="unit">ppm</span>
+        </div>
+        <div class="field"> <label class="visually-hidden"
+                 for="ch-active">Active Ingredient % 0 to 100</label>
+          <input id="ch-active"
+                 name="ch-active"
+                 type="number"
+                 min="0"
+                 max="100"
+                 step="any"
+                 required>
+          <span class="unit">%</span>
+        </div>
+        <div class="field"><label class="visually-hidden"
+                 for="ch-relative-mass">Relative Mass 0.00 to 1.00</label>
+          <input id="ch-relative-mass"
+                 name="ch-relative-mass"
+                 type="number"
+                 min="0"
+                 max="1"
+                 step="any"
+                 required>
+          <span class="unit">M/H2O</span>
+        </div>
+        <div class="field">
+          <output id="ch-result"
+                  for="water-volume ch-test ch-target ch-relative-mass"
+                  aria-label="Calcium for target hardness"
+                  aria-live="polite">
+            <span id="ch-result-value"
+                  class="result-value"></span>
+            <span id="ch-result-unit"
+                  class="unit"></span>
+          </output>
+        </div>
+      </div>
+      <div class="row"
+           role="group"
+           aria-labelledby="cya-label">
+        <div class="row-label">
+          <span id="cya-label"
+                class="test-name">Cyanuric Acid</span>
+          <span class="chemical-name">[Replace Water]</span>
+        </div>
+        <div class="field">
+          <label class="visually-hidden"
+                 for="cya-test">Test (ppm)</label>
+          <input id="cya-test"
+                 name="cya-test"
+                 type="number"
+                 min="0"
+                 step="any"
+                 required>
+          <span class="unit">ppm</span>
+        </div>
+        <div class="field">
+          <label class="visually-hidden"
+                 for="cya-target">Target (ppm)</label>
+          <input id="cya-target"
+                 name="cya-target"
+                 type="number"
+                 min="0"
+                 step="any"
+                 required>
+          <span class="unit">ppm</span>
+        </div>
+        <div class="field"> <label class="visually-hidden"
+                 for="cya-active">Active Ingredient % 0 to 100</label>
+          <input id="cya-active"
+                 name="cya-active"
+                 type="number"
+                 min="0"
+                 max="100"
+                 value="100"
+                 disabled
+                 step="any"
+                 required>
+          <span class="unit">%</span>
+        </div>
+        <div class="field"><label class="visually-hidden"
+                 for="cya-relative-mass">Relative Mass 0.00 to 1.00</label>
+          <input id="cya-relative-mass"
+                 name="cya-relative-mass"
+                 type="number"
+                 min="0"
+                 max="1"
+                 value="1"
+                 disabled
+                 step="any"
+                 required>
+          <span class="unit">M/H2O</span>
+        </div>
+        <div class="field">
+          <output id="cya-result"
+                  for="water-volume cya-test cya-target cya-relative-mass"
+                  aria-label="Water volume to replace for target cya"
+                  aria-live="polite">
+            <span id="cya-result-value"
+                  class="result-value"></span>
+            <span id="cya-result-unit"
+                  class="unit"></span>
+          </output>
+        </div>
+      </div>
+      <div class="row"
+           role="group"
+           aria-labelledby="borate-label">
+        <div class="row-label">
+          <span id="borate-label"
+                class="test-name">Borate</span>
+          <span class="chemical-name">[Bioguard Optimizer]</span>
+        </div>
+        <div class="field">
+          <label class="visually-hidden"
+                 for="borate-test">Test (ppm)</label>
+          <input id="borate-test"
+                 name="borate-test"
+                 type="number"
+                 min="0"
+                 step="any"
+                 required>
+          <span class="unit">ppm</span>
+        </div>
+        <div class="field">
+          <label class="visually-hidden"
+                 for="borate-target">Target (ppm)</label>
+          <input id="borate-target"
+                 name="borate-target"
+                 type="number"
+                 min="0"
+                 step="any"
+                 required>
+          <span class="unit">ppm</span>
+        </div>
+        <div class="field"><label class="visually-hidden"
+                 for="borate-active">Active Ingredient % 0 to 100</label>
+          <input id="borate-active"
+                 name="borate-active"
+                 type="number"
+                 min="0"
+                 max="100"
+                 disabled
+                 step="any"
+                 required>
+          <span class="unit">%</span>
+        </div>
+        <div class="field"><label class="visually-hidden"
+                 for="borate-relative-mass">Relative Mass 0.00 to 1.00</label>
+          <input id="borate-relative-mass"
+                 name="borate-relative-mass"
+                 type="number"
+                 min="0"
+                 max="1"
+                 disabled
+                 step="any"
+                 required>
+          <span class="unit">M/H2O</span>
+        </div>
+        <div class="field">
+          <output id="borate-result"
+                  for="water-volume borate-test borate-target flow-rate"
+                  aria-label="Add for target borate ppm"
+                  aria-live="polite">
+            <span id="borate-result-value"
+                  class="result-value"></span>
+            <span id="borate-result-unit"
+                  class="unit"></span>
+          </output>
+        </div>
+      </div>
+    </form>
   </main>
-
-  <script>
-
-    const OZ_PER_GALLON = 128;
-    const PPM_RATIO = 1.0/1000000.0;
-
-    function calc_scaled_PPM_factor(decimal_percent) {
-      return PPM_RATIO * (1.0 / decimal_percent);
-    }
-
-    function calc_scaled_PPM_diff(test_ppm, set_ppm, decimal_percent) {
-      return Math.abs(set_ppm - test_ppm) * calc_scaled_PPM_factor(decimal_percent);
-    }
-
-    function calc_volume_diff_scalar(test_ppm, set_ppm, volume_scalar, decimal_percent) {
-      return volume_scalar * calc_scaled_PPM_diff(test_ppm, set_ppm, decimal_percent);
-    }
-
-    function calc_oz_set_ppm(ppm_test, ppm_set, volume_gal, decimal_percent_active) {
-      const ppm_d = ppm_set - ppm_test;
-      if(ppm_d <= 0) {
-        return 0;
-      }
-      const gal_d = calc_volume_diff_scalar(test_ppm, set_ppm, volume_gal, decimal_percent_active);
-      const oz = gal_d * OZ_PER_GALLON;
-      return oz;
-    }
-
-
-    function calc_oz_muriatic_acid_31_set_ph_down(ph_test, ph_set, volume_gal) {
-      const oz_per_gallon_to_drop_point_1 = 6 / 10000;
-      const ph_d = ph_test - ph_set;
-      if(ph_d <= 0) {
-        return 0;
-      }
-      const oz = ph_d * volume_gal * oz_per_gallon_to_drop_point_1;
-      return oz;
-    }
-
-    const metrics = [
-      { id: 'ph', name: 'Muriatic acid', unit: 'pH', step: .1, stepLabel: '0.1 pH', current: 7.2, target: 7.5, dose: 8, icon: 'pH', result: 0 },
-      { id: 'chlorine', name: 'Free chlorine', unit: 'ppm', step: 10, stepLabel: '10 ppm', current: 2, target: 3, dose: 21, icon: 'Cl', result: 0 },
-      { id: 'alkalinity', name: 'Total alkalinity', unit: 'ppm', step: 10, stepLabel: '10 ppm', current: 70, target: 110, dose: 24, icon: 'TA', result: 0 },
-      { id: 'borate', name: 'Optimizer', unit: 'ppm', step: 10, stepLabel: '10 ppm', current: 30, target: 40, dose: 64, icon: 'B', result: 0 },
-      { id: 'calcium', name: 'Calcium hardness', unit: 'ppm', step: 10, stepLabel: '10 ppm', current: 180, target: 200, dose: 20, icon: 'Ca', result: 0 },
-      { id: 'cyanuric', name: 'Cyanuric acid', unit: 'ppm', step: 10, stepLabel: '10 ppm', current: 30, target: 40, dose: 13, icon: 'Cy', result: 0 }
-    ];
-
-    const rows = document.querySelector('#metricRows');
-    const results = document.querySelector('#resultList');
-
-    function field(metric, kind, value, suffix, label, step = 'any') {
-      return `<div class="compact-field" data-label="${label}"><input aria-label="${metric.name} ${label.toLowerCase()}" id="${metric.id}-${kind}" type="number" min="0" step="${step}" value="${value}"><span class="suffix">${suffix}</span></div>`;
-    }
-
-    metrics.forEach(metric => {
-      rows.insertAdjacentHTML('beforeend', `<div class="metric-row">
-        <div class="metric-name">${metric.name}<small>${metric.id === 'ph' ? 'ph down' : ' ppm'}</small></div>
-        ${field(metric, 'current', metric.current, metric.unit, 'Current')}
-        ${field(metric, 'target', metric.target, metric.unit, 'Target')}
-        ${field(metric, 'dose', metric.dose, 'OZ', 'Oz / step', '.1')}
-        <div class="compact-field"><span id="${metric.id}-result"></span></div>
-      </div>`);
-    });
-
-    function formatOunces(ounces) {
-      if (!Number.isFinite(ounces) || ounces < 0) return '—';
-      if (ounces === 0) return '0 oz';
-      if (ounces >= 64) {
-        const pounds = ounces / 16;
-        return `${pounds.toLocaleString(undefined, { maximumFractionDigits: 2 })} lb`;
-      }
-      return `${ounces.toLocaleString(undefined, { maximumFractionDigits: 1 })} oz`;
-    }
-
-    function calculate() {
-      const volume = Number(document.querySelector('#volume').value);
-
-      metrics.forEach(metric => {
-        const current = Number(document.querySelector(`#${metric.id}-current`).value);
-        const target = Number(document.querySelector(`#${metric.id}-target`).value);
-        const dosePerStep = Number(document.querySelector(`#${metric.id}-dose`).value);
-        const valid = [volume, current, target, dosePerStep].every(Number.isFinite) && volume > 0 && dosePerStep >= 0;
-        const difference = target - current;
-        //const ounces = valid ? Math.abs(difference) / metric.step * dosePerStep * (volume / 10000) : NaN;
-        const balanced = valid && Math.abs(difference) < metric.step / 100;
-        const direction = !valid ? 'Check the entered values' : balanced ? 'Already at target' : `${difference > 0 ? 'Raise' : 'Lower'} by ${Math.abs(difference).toLocaleString(undefined, { maximumFractionDigits: 2 })} ${metric.unit}`;
-
-        const result = document.querySelector(`#${metric.id}-result`);
-
-        let resultValue = calcOZ(current, target, volume, dosePerStep);
-
-        switch (metric.id) {
-          case 'ph': {
-            if (difference >= 0) {
-              resultValue = 0;
-            }
-            break;
-          }
-        }
-
-        result.innerHTML = formatOunces(resultValue);
-      });
-    }
-
-    document.querySelector('#calculator').addEventListener('input', calculate);
-    document.querySelector('#resetButton').addEventListener('click', () => {
-      document.querySelector('#volume').value = 15000;
-      metrics.forEach(metric => {
-        document.querySelector(`#${metric.id}-current`).value = metric.current;
-        document.querySelector(`#${metric.id}-target`).value = metric.target;
-        document.querySelector(`#${metric.id}-dose`).value = metric.dose;
-      });
-      calculate();
-    });
-    calculate();
-
-
-    const ROOTPDX_POOL_API = {
-      calc_oz_to_set_ppm: {
-        request: function (json_request) {
-
-        },
-        json_request_template: {
-          'test_ppm': 0.0,
-          'set_ppm': 0.0,
-          'pool_gallons': 0.0,
-          'decimal_percent_chem_scalar': 1.0
-        }
-      }
-    };
-
-  </script>
+  <script src="pool-api.js"></script>
+  <script src="rpdx.js"></script>
 </body>
 </html>
-
-<!--
-
-
--->
