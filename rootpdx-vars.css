@@ -4,16 +4,18 @@
       --rootpdx-dim: #0c61bd;
       --rootpdx-trim: #4d4d4d;
 
-      /* color: var(--rootpdx-blue);
-      background-color: var(--rootpdx-black); */
+      color: var(--rootpdx-blue);
+      background-color: var(--rootpdx-black); 
       font-family:
         ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", monospace;
-      /* color-scheme: dark; */
+      color-scheme: dark; 
     }
 
     output,
     input[type="number"] {
       appearance: textfield;
+      color: var(--rootpdx-blue);
+      background: transparent;
     }
 
     input[type="number"]::-webkit-inner-spin-button,
